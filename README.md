@@ -67,7 +67,15 @@ name of the element (if the named element exists already, it will be over-writte
 is a hashref of defining radius of the sphere.
 
 * `translate`
+Moves an element by name a specified displacement in X,y,z directions.e.g.
+`$scad->cube("bodyTop",[30,20,10],1)->translate("bodyTop",[0,0,5])`  The first parameter is the
+name of the element (the element must exist already).The second parameter is an arrayef of three elements.
+
 * `scale`
+Scales an element by name by specified ratios in X,y,z directions.e.g.
+`$scad->cube("bodyTop",[30,20,10],1)->scale("bodyTop",[1,2,0.5])`.  The first parameter is the
+name of the element (the element must exist already).The second parameter is an arrayef of three scale factors.
+
 * `rotate`
 * `union`
 * `difference`
