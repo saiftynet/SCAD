@@ -2,6 +2,8 @@ use strict;
 use warnings;
 use Object::Pad;
 
+our $VERSION=0.01;
+
 class SCAD{
    field $script :reader :param  //="";
    field $items  :reader :writer //={};
@@ -19,14 +21,22 @@ class SCAD{
    
    method variable{
 	   my ($varName,$value)=@_;
-	   $vars->{$varName}=$value;
+	   if (ref $varName){
+		   for (keys %$varName){
+			   $vars->{$_}=$varName->{$_}
+		   }
+	   }
+	   else{
+		   $vars->{$varName}=$value;
+	   }
+	   return $self;
    }
    
    method dimsToStr{
 	  my ($dims,$expected)=@_;
       if (ref $dims){
         if (ref $dims eq "ARRAY" and scalar @$dims==3){
-          return "[".(join ",", @$dims)."]";
+          return "[".(join ",",map{ref $_ eq "ARRAY"?"[".join(",",@$_)."]":$_ }@$dims)."]";
         }
         elsif ($expected && $expected eq "ARRAY"){
 			die "Incorrect parameter...should be arrayref of 3 numbers";
@@ -88,7 +98,7 @@ class SCAD{
       return $self;
 	  
   }
-    
+   
   method resize{
       my ($name,$dims)=@_;
       $items->{$name}="resize(".$self->dimsToStr($dims,"ARRAY").")\n".$self->tab($items->{$name});
@@ -120,12 +130,35 @@ class SCAD{
       return $self;
   }  
   
+  method circle{
+      my ($name,$dims)=@_;
+      $items->{$name}="circle(".$self->dimsToStr($dims,"HASH") .");\n";
+      return $self;
+  }
+  method polygon{
+      my ($name,$dims)=@_;
+      $items->{$name}="polygon(".$self->dimsToStr($dims) .");\n";
+      return $self;
+  }
+	 	  
+  method rotate_extrude{
+      my ($name,$dims)=@_;
+      $items->{$name}="rotate_extrude(".$self->dimsToStr($dims,"HASH")."){\n  ".$items->{$name}."}\n"  ;
+      return $self;
+  }  
+  
+  method linear_extrude{
+      my ($name,$dims)=@_;
+      $items->{$name}="linear_extrude(".$self->dimsToStr($dims,"HASH")."){\n  ".$items->{$name}."}\n"  ;
+      return $self;
+  }  
+  	  
   method color{
 	  my ($name,$color)=@_;
       $items->{$name}="color(\"$color\")\n".$self->tab($items->{$name});
       return $self;
   }
-  
+
   method tab{ # internal tabbing for scripts;
 	  my $scr=shift;
 	  my $tabs=" "x$tab;
@@ -143,15 +176,16 @@ class SCAD{
   method build{
 	  # $script="\$fa=$fa;\n\$fs=$fs;\n";
 	  if (%$vars){
-		  for my $k(keys %$vars){
-			 $script.="$k = $vars->{$k};\n"; 
+		  for my $k(sort keys %$vars){
+			  my $value=(ref $vars->{$k})?"[".join(",",@{$vars->{$k}})."]":$vars->{$k};
+			 $script.="$k = $value;\n"; 
 		  }
 	  }
-	  $script.=$items->{$_} foreach @_;
+	  $script.=$items->{$_}  foreach @_;
 	  return $self;
   }
   
-  method save{
+  method save{  #
 	  my ($fileName,$format)=@_;
 	  $fileName=$fileName.".scad" unless ($fileName=~/\.scad$/);
 	  die "No script to save" unless $script;
