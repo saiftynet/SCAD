@@ -51,6 +51,10 @@ and potentially saved in various formats using OpenSCAD, or injected directly in
 * `union`
 * `difference`
 * `intersection`
+* `circle`
+* `polygon`
+* `linear_extrude`
+* `rotate_extrude`
 * `clone`
 * `variable`
 * `build`
