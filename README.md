@@ -21,7 +21,8 @@ my $car=new SCAD;
 $car->cube("bodyBase",[60,20,10],1)
     ->cube("bodyTop",[30,20,10],1)
     ->translate("bodyTop",[0,0,5])
-    ->group("carBody","bodyBase","bodyTop")->color("carBody","blue");
+    ->group("carBody","bodyBase","bodyTop")
+    ->color("carBody","blue");
 
 ```
 
