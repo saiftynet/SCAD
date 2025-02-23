@@ -5,15 +5,6 @@ OpenSCAD scripts that can be used to generate 3D Objects, in a fairly Perlish wa
 its way through the tutorial and will hopefully have an incremental features that allow complex models to
 be generated and produce files that can fed into a 3D printer.
 
-CAD is not really something that has had significant recent Perl attention.  The OenSCAD framework allows
-the use of scripted generation and manipulation of 3D objects, and this module attempts to make this
-accessible in Perl. Object::Pad, a modern OOP paradigm, is used.  The OpenSCAD GUI can be used to display outputs,
-although  STL, PNG,and SCAD files  (and others) may also be generated.  The example script [`car.pl`](https://github.com/saiftynet/SCAD/blob/main/car.pl) 
-replicates one of the [tutorial](https://en.wikibooks.org/wiki/OpenSCAD_Tutorial/Chapter_1) objects.  As you can see,
-the object is returned after every operation, allowing daisy-chaining of operations.
-
-![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/OpenSCAD.png?raw=true)
-
 ### Usage
 
 ```
@@ -27,6 +18,17 @@ $box->cube("Box",[60,20,10],1)->translate("Box",[0,0,5])->color("Box","blue");
 $car->build("Box")->save("Box");
 
 ```
+
+### Introduction
+
+CAD is not really something that has had significant recent Perl attention.  The OenSCAD framework allows
+the use of scripted generation and manipulation of 3D objects, and this module attempts to make this
+accessible in Perl. Object::Pad, a modern OOP paradigm, is used.  The OpenSCAD GUI can be used to display outputs,
+although  STL, PNG,and SCAD files  (and others) may also be generated.  The example script [`car.pl`](https://github.com/saiftynet/SCAD/blob/main/car.pl) 
+replicates one of the [tutorial](https://en.wikibooks.org/wiki/OpenSCAD_Tutorial/Chapter_1) objects.  As you can see,
+the object is returned after every operation, allowing daisy-chaining of operations.
+
+![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/OpenSCAD.png?raw=true)
 
 ### Methods implemented
 
