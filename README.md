@@ -77,16 +77,45 @@ Scales an element by name by specified ratios in X,y,z directions.e.g.
 name of the element (the element must exist already).The second parameter is an arrayef of three scale factors.
 
 * `rotate`
+  Rotates an element by name around in X,y,z axes.e.g.
+`$scad->cylinder("wheel",{h=>2,r=>8},1)->rotate("wheel",[90,0,0]);`.  The first parameter is the
+name of the element (the element must exist already).The second parameter is an arrayef of three rotations in degrees.
+
 * `union`
+Implicitly joins multiple elements into one element.e.g. $scad->union("wheel",qw/wheel nut nut1 nut2 nut3/);
+the first item is the name of the new element created, the following elements are elements to be joined together.
+If an element with the name of the first parameter does not exist, it is created, otherwise it is over-written.
+  
 * `difference`
+Subtracts one or more elements from one element and creates a new element.e.g. `$scad->difference("wheel",qw/wheel nut nut1 nut2 nut3/); The first parameter is the name of the new element created, the second parameter refers to the item that all other elements are subtracted from.
+If an element with the name of the first parameter does not exist, it is created, otherwise it is over-written.
+
 * `intersection`
+creates an element representing the overlapping parts of 2 or more elements and creates a new element.e.g. `$scad->intersection("overlap",qw/item1  item2 item3/); The first parameter is the name of the new element created, the other names refer to elements which overlap neach other.
+
 * `circle`
+a 2D drawing primitive that creates a circle that may be extruded to create other 3D structures
+
 * `polygon`
+a 2D drawing primitive that creates a polygon that may be extruded to create other 3D structures
+
 * `linear_extrude`
+A method to extrude a 2D shape
+
 * `rotate_extrude`
+A method to extrude a 2D shape while rotating
+
 * `clone`
+  creates copies of elements with same features
+  
 * `variable`
+creates variables that SCAD can use for customising objects easily
+
 * `build`
+  collects all the elements, and all the variables to generate a scad file
+   
 * `save`
+  saves the .scad file, and also uses openscad to generate images or 3D objects
+  from the script, or open it in openSCAD directly.
 
 
