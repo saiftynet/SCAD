@@ -34,7 +34,7 @@ although  STL, PNG,and SCAD files  (and others) may also be generated.  The exam
 replicates one of the [tutorial](https://en.wikibooks.org/wiki/OpenSCAD_Tutorial/Chapter_1) objects.  As you can see,
 the object is returned after every operation, allowing daisy-chaining of operations.  The objects are named for easy 
 identification. These operations produce items that can be collected, and built (to genereate the SCAD script),
-and potentially saved in various formats using OpenSCAD, or injected directly into the GUI tool.
+and potentially saved in various formats using OpenSCAD, or injected directly into the GUI tool for further fine-tuning.
 (OpenSCAD is required to be installed for rendering)
 
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/OpenSCAD.png?raw=true)
