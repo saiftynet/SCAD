@@ -6,8 +6,8 @@ its way through the tutorial and will hopefully have an incremental features tha
 be generated and produce files that can fed into a 3D printer.  
 
 ### Dependencies
-[OpenSCAD](https://openscad.org/documentation.html)
-[Object::Pad](https://metacpan.org/pod/Object::Pad)
+* [OpenSCAD](https://openscad.org/documentation.html)
+* [Object::Pad](https://metacpan.org/pod/Object::Pad)
 
 ### Usage
 
