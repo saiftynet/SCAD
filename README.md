@@ -17,9 +17,11 @@ be generated and produce files that can fed into a 3D printer.
 use lib "lib";
 use CAD::OpenSCAD;
 
-my $box=new SCAD;
-$box->cube("Box",[60,20,10],1)->translate("Box",[0,0,5])->color("Box","blue");
-$car->build("Box")->save("Box");
+my $car=new SCAD;
+$car->cube("bodyBase",[60,20,10],1)
+    ->cube("bodyTop",[30,20,10],1)
+    ->translate("bodyTop",[0,0,5])
+    ->group("carBody","bodyBase","bodyTop")->color("carBody","blue");
 
 ```
 
