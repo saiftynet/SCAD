@@ -41,9 +41,26 @@ and potentially saved in various formats using OpenSCAD, or injected directly in
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/OpenSCAD.png?raw=true)
 
 ### Methods implemented
+```
+use lib "lib";
+use CAD::OpenSCAD;
+my $scad=new SCAD;
+```
+After creating a SCAD Object, elements can be added to the object, transformed etc.  **Note**: minimal error checking
+is done.  The tool relies on error checking at the OpenSCAD tool.
 
 * `cube`
+Creates a cube element e.g. `$scad->cube("bodyBase",[60,20,10],1)`.  The first parameter is the
+name of the element (if the named element exists already, it will be over-written). The second parameter
+is an arrayref of three dimensions. The third parameter defines whether the element is centered in the origin
+(a true value here centers the element)
+
 * `cylinder`
+Creates a cube element e.g. `$scad->cylinder("wheel",{h=>2,r=>8},1)`.  The first parameter is the
+name of the element (if the named element exists already, it will be over-written).The second parameter
+is a hashref of defining radius and height. The third parameter defines whether the element is centered
+on the origin (a true value here centers the element)
+
 * `sphere`
 * `translate`
 * `scale`
