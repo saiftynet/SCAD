@@ -32,9 +32,10 @@ the use of scripted generation and manipulation of 3D objects, and this module a
 accessible in Perl. Object::Pad, a modern OOP paradigm, is used.  The OpenSCAD GUI can be used to display outputs,
 although  STL, PNG,and SCAD files  (and others) may also be generated.  The example script [`car.pl`](https://github.com/saiftynet/SCAD/blob/main/car.pl) 
 replicates one of the [tutorial](https://en.wikibooks.org/wiki/OpenSCAD_Tutorial/Chapter_1) objects.  As you can see,
-the object is returned after every operation, allowing daisy-chaining of operations.  These operations produce 
-items that can be collected, and built (to genereate the SCAD script), and potentially saved in various formats
-using OpenSCAD, or injected directly into the GUI tool. (OpenSCAD is required to be installed for rendering)
+the object is returned after every operation, allowing daisy-chaining of operations.  The objects are named for easy 
+identification. These operations produce items that can be collected, and built (to genereate the SCAD script),
+and potentially saved in various formats using OpenSCAD, or injected directly into the GUI tool.
+(OpenSCAD is required to be installed for rendering)
 
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/OpenSCAD.png?raw=true)
 
