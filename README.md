@@ -108,10 +108,10 @@ A method to extrude a 2D shape while rotating
 * `clone`
   Creates copies of elements with same features. e.g.`$car->clone("axle",qw/frontaxle rearaxle/);`   This just copies the code for the element into new elements, for subsequent transformation (otherwise all the elements are positioned in the same place overlying one another) 
 
-* `makeModule`
+* `makeModule` (v0.02)
 converts an object into a module to create other objects (see [`car.pl`](https://github.com/saiftynet/SCAD/blob/main/car.pl) for an example ).  Using modules reduces code repetition in the generated .scad file.
 
-* `runModule`
+* `runModule` (v0.02)
 Create an object using a predefined module (see [`car.pl`](https://github.com/saiftynet/SCAD/blob/main/car.pl) for an example ).
 
 * `variable`
