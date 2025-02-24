@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Object::Pad;
 
-our $VERSION=0.01;
+our $VERSION=0.02;
 
 class SCAD{
    field $script :reader :param  //="";
@@ -11,6 +11,7 @@ class SCAD{
    field $fs     :writer :param //=0.4;
    field $tab    :writer :param //=2;
    field $vars   = {};
+   field $externalFiles=[];
    field $modules={};
    
    method cube{
@@ -34,6 +35,7 @@ class SCAD{
    
    method dimsToStr{
 	  my ($dims,$expected)=@_;
+	  return "" unless $dims;
       if (ref $dims){
         if (ref $dims eq "ARRAY" and scalar @$dims==3){
           return "[".(join ",",map{ref $_ eq "ARRAY"?"[".join(",",@$_)."]":$_ }@$dims)."]";
@@ -108,24 +110,24 @@ class SCAD{
   
   method union{
       my ($name,@names)=@_;
-      $self->group($name,@names);
       die "Union requires more than one shape" unless scalar @names>1;
+      $self->group($name,@names);
       $items->{$name}="union()\n".$items->{$name};
       return $self;
   }
     
   method difference{
       my ($name,@names)=@_;
-      $self->group($name,@names);
       die "Difference requires more than one shape" unless scalar @names>1;
+      $self->group($name,@names);
       $items->{$name}="difference()\n".$items->{$name};
       return $self;
   }  
   
   method intersection{
       my ($name,@names)=@_;
-      $self->group($name,@names);
       die "Intersection requires more than one shape" unless scalar @names>1;
+      $self->group($name,@names);
       $items->{$name}="intersection()".$items->{$name}  ;
       return $self;
   }  
@@ -159,8 +161,29 @@ class SCAD{
       return $self;
   }
 
+  method useFile{
+	  $externalFiles=[@$externalFiles,@_];
+	  return $self;
+  }
+  
+  method makeModule{
+	  my ($moduleName,$params,@names)=@_;
+      $self->group("_tmp_$moduleName",@names);
+	  $modules->{$moduleName}="module $moduleName($params)".$items->{"_tmp_$moduleName"};
+	  $self->remove("_tmp_$moduleName");
+	  return $self;
+  }
+
+  method runModule{
+	  my ($moduleName,$name,$dims)=@_;
+	  die "No module $moduleName" unless $modules->{$moduleName};
+      $items->{$name}="$moduleName(".$self->dimsToStr($dims).");\n"  ;
+      return $self;
+  }
+
   method tab{ # internal tabbing for scripts;
 	  my $scr=shift;
+	  return unless $scr;
 	  my $tabs=" "x$tab;
 	  chomp $scr;
 	  $scr=$tabs.(join "\n$tabs", (split "\n",$scr))."\n";
@@ -174,13 +197,17 @@ class SCAD{
   }
   
   method build{
-	  # $script="\$fa=$fa;\n\$fs=$fs;\n";
+	#  $script="\$fa=$fa;\n\$fs=$fs;\n";
+	  if (scalar @$externalFiles){
+		  $script.="use <$_>;\n" foreach  @$externalFiles;
+	  }
 	  if (%$vars){
 		  for my $k(sort keys %$vars){
 			  my $value=(ref $vars->{$k})?"[".join(",",@{$vars->{$k}})."]":$vars->{$k};
 			 $script.="$k = $value;\n"; 
 		  }
 	  }
+	  $script.=$modules->{$_}  foreach (keys %$modules);
 	  $script.=$items->{$_}  foreach @_;
 	  return $self;
   }
