@@ -121,9 +121,10 @@ creates variables that SCAD can use for customising objects easily
 
 ### Planned Features
 
-The OpenSCAD language itself is very powerful, and some of these may be implented in the module using a "raw" method.
+The OpenSCAD language itself is very powerful, and some of these may be implemented in the module using a "raw" method.
 Indeed, as a mature framework, many modules exist that enhance to its capabilities.  To be able to use or extend these
-capabilities through Perl is one  goal of this module.
+capabilities through Perl is one  goal of this module.  Complex things take some time to render, and having a tool that
+can allow the generation multiple scenes/structures separately quickly to be later rendered by OpenSCAD is one goal.
 
-* 
+
 
