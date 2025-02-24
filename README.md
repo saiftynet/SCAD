@@ -30,7 +30,7 @@ $car->cube("bodyBase",[60,20,10],1)
 
 CAD is not really something that has had significant recent Perl attention.  The OenSCAD framework allows
 the use of scripted generation and manipulation of 3D objects, and this module attempts to make this
-accessible in Perl. Object::Pad, a modern OOP paradigm, is used.  The OpenSCAD GUI can be used to display outputs,
+accessible in Perl. Object::Pad, a modern OOP paradigm, is used but deliberately not using its full features.  The OpenSCAD GUI can be used to display outputs,
 although  STL, PNG,and SCAD files  (and others) may also be generated.  The example script [`car.pl`](https://github.com/saiftynet/SCAD/blob/main/car.pl) 
 replicates one of the [tutorial](https://en.wikibooks.org/wiki/OpenSCAD_Tutorial/Chapter_1) objects.  As you can see,
 the object is returned after every operation, allowing daisy-chaining of operations.  The objects are named for easy 
@@ -118,4 +118,12 @@ creates variables that SCAD can use for customising objects easily
   saves the .scad file, and also uses openscad to generate images or 3D objects
   from the script, or open it in openSCAD directly.
 
+
+### Planned Features
+
+The OpenSCAD language itself is very powerful, and some of these may be implented in the module using a "raw" method.
+Indeed, as a mature framework, many modules exist that enhance to its capabilities.  To be able to use or extend these
+capabilities through Perl is one  goal of this module.
+
+* 
 
