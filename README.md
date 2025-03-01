@@ -30,7 +30,9 @@ $car->cube("bodyBase",[60,20,10],1)
 This early prototype and OpenSCAD.pm is a monolithic module.
 The suggested path structure is CAD/OpenSCAD.pm somewehere in a path in @INC.
 For experimenters (and this is a module not in CPAN yet so should be condidered experimental), i would recommend
-1) a folder in your script path containing OpenSCAD in a folder called CAD
+1) Install Object::Pad   (This is a dependency only to make my coding easier and for me to learn Object Pad...it may be removed if this causes a problem for sufficient people, though I dont see why it should)
+2) Install OpenSCAD
+3) a folder in your script path containing OpenSCAD in a folder called CAD
  ```
 ├── car.pl
 ├── car.png
@@ -39,6 +41,13 @@ For experimenters (and this is a module not in CPAN yet so should be condidered 
 └── lib
     └── CAD
         └── OpenSCAD.pm
+```
+4) Use it in your scripts using 
+```
+#!/usr/env perl
+use strict;use warnings;
+use lib "lib";  
+use CAD::OpenSCAD;
 ```
 
 
