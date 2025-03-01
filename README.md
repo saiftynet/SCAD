@@ -6,7 +6,7 @@ its way through the tutorial and will hopefully have an incremental features tha
 be generated and produce files that can fed into a 3D printer.  
 
 ### Dependencies
-* [OpenSCAD](https://openscad.org/documentation.html)
+* [OpenSCAD](https://openscad.org/documentation.html) 
 * [Object::Pad](https://metacpan.org/pod/Object::Pad)
 
 ### Usage
@@ -25,6 +25,22 @@ $car->cube("bodyBase",[60,20,10],1)
     ->color("carBody","blue");
 
 ```
+### Installation
+
+This early prototype and OpenSCAD.pm is a monolithic module.
+The suggested path structure is CAD/OpenSCAD.pm somewehere in a path in @INC.
+For experimenters (and this is a module not in CPAN yet so should be condidered experimental), i would recommend
+1) a folder in your script path containing OpenSCAD in a folder called CAD
+ ```
+├── car.pl
+├── car.png
+├── car.scad
+├── car.stl
+└── lib
+    └── CAD
+        └── OpenSCAD.pm
+```
+
 
 ### Introduction
 
