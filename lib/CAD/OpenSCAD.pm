@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Object::Pad;
 
-our $VERSION=0.04;
+our $VERSION=0.05;
 =head1 CAD::OpenSCAD
 
 Module to generate .scad file from Perl
