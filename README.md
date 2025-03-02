@@ -92,19 +92,21 @@ name of the element (if the named element exists already, it will be over-writte
 is a hashref of defining radius of the sphere.
 
 * `translate`
-Moves an element by name a specified displacement in X,y,z directions.e.g.
+Moves an element by name a specified displacement in X,Y,Z directions.e.g.
 `$scad->cube("bodyTop",[30,20,10],1)->translate("bodyTop",[0,0,5])`  The first parameter is the
-name of the element (the element must exist already).The second parameter is an arrayef of three elements.
+name of the element (the element must exist already).The second parameter is an arrayref of three elements
+defining displacement.
 
 * `scale`
-Scales an element by name by specified ratios in X,y,z directions.e.g.
+Scales an element by name by specified ratios in X,Y,Z directions.e.g.
 `$scad->cube("bodyTop",[30,20,10],1)->scale("bodyTop",[1,2,0.5])`.  The first parameter is the
-name of the element (the element must exist already).The second parameter is an arrayef of three scale factors.
+name of the element (the element must exist already).The second parameter is an arrayref of three scale factors.
 
 * `rotate`
-  Rotates an element by name around in X,y,z axes.e.g.
+  Rotates an element by name around in  X,Y,Z axes.e.g.
 `$scad->cylinder("wheel",{h=>2,r=>8},1)->rotate("wheel",[90,0,0]);`.  The first parameter is the
-name of the element (the element must exist already).The second parameter is an arrayef of three rotations in degrees.
+name of the element (the element must exist already).The second parameter is an arrayref of three rotations
+in degrees.
 
 * `union`
 Implicitly joins multiple elements into one element.e.g. $scad->union("wheel",qw/wheel nut nut1 nut2 nut3/);
