@@ -124,6 +124,10 @@ creates an element representing the overlapping parts of 2 or more elements and 
 a 2D drawing primitive that creates a circle that may be extruded to create other 3D structures.
 e.g `$scad->circle("circle",{r=>5})`;
 
+* square
+a 2D drawing primitive that creates a rectangle that may be extruded to create other 3D structures.
+e.g `$scad->square("square",[10,10])`;
+
 * `polygon`
 a 2D drawing primitive that creates a polygon that may be extruded to create other 3D structures
 
