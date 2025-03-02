@@ -132,7 +132,7 @@ e.g `$scad->square("square",[10,10])`;
 a 2D drawing primitive that creates a polygon that may be extruded to create other 3D structures
 
 * `linear_extrude`
-A method to extrude a 2D shape.  creates a new 3D objects from a 2d shape
+A method to extrude a 2D shape.  creates a new 3D objects from a 2d shape *: API CHANGED: method creates new item now*
 ```
 my $extrusion=new SCAD;
 $extrusion->variable({p0=>[0, 0],p1 => [0, -30],p2 => [15, 30],p3=> [35, 20],p4 => [35, 0]});
@@ -142,7 +142,7 @@ $extrusion->linear_extrude("extrudedPoly","poly",{height=>100,twist=>180});
 ```
 
 * `rotate_extrude`
-A method to extrude a 2D shape while rotating invokes similar to liner_extrude
+A method to extrude a 2D shape while rotating invokes similar to liner_extrude *: API CHANGED: method creates new item now*
 ```
 my $extrusion=new SCAD;
 $extrusion->circle("circle",{r=>5})
