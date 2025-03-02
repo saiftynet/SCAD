@@ -164,6 +164,12 @@ creates variables that SCAD can use for customising objects easily
   saves the .scad file, and also uses openscad to generate images or 3D objects
   from the script, or open it in openSCAD directly.
 
+* `import`
+  imports files. Valid files are STL|OFF|OBJ|AMF3MF|STL|DXF|SVG files
+
+* `use`
+   uses library files.  These are external files in OpenSCAD paths and allow access to OpenSCADs extensive libraries.  The modules in these libraries are executed using `$scad runModule($modulename,$name_for_item,$params_as_scalar_or_ref)`
+
 
 ### Planned Features
 
