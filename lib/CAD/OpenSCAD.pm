@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Object::Pad;
 
-our $VERSION=0.02;
+our $VERSION=0.03;
 
 class SCAD{
    field $script :reader :param  //="";
@@ -33,6 +33,7 @@ class SCAD{
 	   return $self;
    }
    
+
    method dimsToStr{
 	  my ($dims,$expected)=@_;
 	  return "" unless $dims;
@@ -89,6 +90,7 @@ class SCAD{
   
   method translate{
       my ($name,$dims)=@_;
+      die "No item called $name" unless ($items->{$name});
       $items->{$name}="translate(".$self->dimsToStr($dims,"ARRAY").")\n".$self->tab($items->{$name});
       return $self;
 	  
@@ -107,7 +109,13 @@ class SCAD{
       return $self;
 	  
   }
-  
+    
+  method scale{
+      my ($name,$dims)=@_;
+      $items->{$name}="scale(".$self->dimsToStr($dims,"ARRAY").")\n".$self->tab($items->{$name});
+      return $self;
+	  
+  } 
   method union{
       my ($name,@names)=@_;
       die "Union requires more than one shape" unless scalar @names>1;
@@ -131,17 +139,27 @@ class SCAD{
       $items->{$name}="intersection()".$items->{$name}  ;
       return $self;
   }  
-  
+
+# 2d primitives  
   method circle{
       my ($name,$dims)=@_;
       $items->{$name}="circle(".$self->dimsToStr($dims,"HASH") .");\n";
       return $self;
   }
+  
+  method square{
+      my ($name,$dims)=@_;
+      $items->{$name}="square(".$self->dimsToStr($dims,"HASH") .");\n";
+      return $self;
+  }
+    
   method polygon{
       my ($name,$dims)=@_;
       $items->{$name}="polygon(".$self->dimsToStr($dims) .");\n";
       return $self;
   }
+
+#extrusions
 	 	  
   method rotate_extrude{
       my ($name,$dims)=@_;
@@ -161,7 +179,90 @@ class SCAD{
       return $self;
   }
 
-  method useFile{
+  method tab{ # internal tabbing for scripts;
+	  my $scr=shift;
+	  return unless $scr;
+	  my $tabs=" "x$tab;
+	  chomp $scr;
+	  $scr=$tabs.(join "\n$tabs", (split "\n",$scr))."\n";
+	  return $scr;
+  }
+  
+  method clone{
+	   my ($name,@cloneNames)=@_;
+	   $items->{$_}=$items->{$name} foreach @cloneNames;
+	   return $self;
+  }
+  
+  method build{
+	  $script="\$fa=$fa;\n\$fs=$fs;\n";
+	  if (scalar @$externalFiles){
+		  $script.="use <$_>;\n" foreach  @$externalFiles;
+	  }
+	  if (%$vars){
+		  for my $k(sort keys %$vars){
+			  my $value=(ref $vars->{$k})?"[".join(",",@{$vars->{$k}})."]":$vars->{$k};
+			 $script.="$k = $value;\n"; 
+		  }
+	  }
+	  $script.=$modules->{$_}  foreach (keys %$modules);
+	  $script.=$items->{$_}  foreach @_;
+	  return $self;
+  }
+  
+  method save{  #
+	  my ($fileName,$format)=@_;
+	  $fileName=$fileName.".scad" unless ($fileName=~/\.scad$/);
+	  die "No script to save" unless $script;
+	 # (my $newFile=$fileName)=~s/scad$/stl/;
+	  open my $fh,">",$fileName or die "Cannot save $fileName";
+	  print $fh $script;
+	  if ($format  && ($format=~/^(stl|png|t|off|wrl|amf|3mf|csg|dxf|svg|pdf|png|echo|ast|term|nef3|nefdbg)$/)){
+        (my $newFile=$fileName)=~s/scad$/$format/;
+        system ("openscad", $fileName, "-o$newFile");
+	  }
+	  else{
+		  system ("openscad", $fileName)
+	  }
+	  return $self;
+  }
+
+
+
+
+  
+## External files
+
+  method import{
+      my ($name,$dims)=@_;
+      my $file=ref $dims?$dims->{file}:$dims;
+      my ($ext) = $file =~ /(\.[^.]+)$/;# get extension
+      if ($ext=~/^(STL|OFF|OBJ|AMF3MF|STL|DXF|SVG)$/i){
+		   $items->{$name}="import(".dimsToStr($dims).");\n"  ;
+	  }
+  }
+
+  method importModule{# use this only to generate standalone files
+	  my ($file,$moduleName)=@_;
+	  my $regexp=qr/module\s+([A-z0-9_]+)[\s\(]([^\)]*)\)\s*(\{([^\{\}]+|\{[^\{\}]*\})*\})/;
+	  my $data="";
+	  open my $fh,"<",$file or die "Cannot open $file";
+	  while(my $line = <$fh>){
+		  $data.=$line;
+       }
+       close $fh;
+       
+       my @groups = $data =~ m/$regexp/g;
+       if ($1 eq $moduleName){
+          $modules->{$1}={params=>$2,code=>$3};
+	   }
+	  return $self;
+  }  
+
+
+# modules
+
+  method use{
 	  $externalFiles=[@$externalFiles,@_];
 	  return $self;
   }
@@ -181,81 +282,5 @@ class SCAD{
       return $self;
   }
 
-  method tab{ # internal tabbing for scripts;
-	  my $scr=shift;
-	  return unless $scr;
-	  my $tabs=" "x$tab;
-	  chomp $scr;
-	  $scr=$tabs.(join "\n$tabs", (split "\n",$scr))."\n";
-	  return $scr;
-  }
-  
-  method clone{
-	   my ($name,@cloneNames)=@_;
-	   $items->{$_}=$items->{$name} foreach @cloneNames;
-	   return $self;
-  }
-  
-  method build{
-	#  $script="\$fa=$fa;\n\$fs=$fs;\n";
-	  if (scalar @$externalFiles){
-		  $script.="use <$_>;\n" foreach  @$externalFiles;
-	  }
-	  if (%$vars){
-		  for my $k(sort keys %$vars){
-			  my $value=(ref $vars->{$k})?"[".join(",",@{$vars->{$k}})."]":$vars->{$k};
-			 $script.="$k = $value;\n"; 
-		  }
-	  }
-	  $script.=$modules->{$_}  foreach (keys %$modules);
-	  $script.=$items->{$_}  foreach @_;
-	  return $self;
-  }
-  
-  method save{  #
-	  my ($fileName,$format)=@_;
-	  $fileName=$fileName.".scad" unless ($fileName=~/\.scad$/);
-	  die "No script to save" unless $script;
-	  (my $newFile=$fileName)=~s/scad$/stl/;
-	  open my $fh,">",$fileName or die "Cannot save $fileName";
-	  print $fh $script;
-	  if ($format  && ($format=~/^(stl|png|t|off|wrl|amf|3mf|csg|dxf|svg|pdf|png|echo|ast|term|nef3|nefdbg)$/)){
-        (my $newFile=$fileName)=~s/scad$/$format/;
-        system ("openscad", $fileName, "-o $newFile");
-	  }
-	  else{
-		  system ("openscad", $fileName)
-	  }
-	  return $self;
-  }
-  
-  method importModule{# use this only to generate standalone files
-	  my ($file,$moduleName)=@_;
-	  my $regexp=qr/module\s+([A-z0-9_]+)[\s\(]([^\)]*)\)\s*(\{([^\{\}]+|\{[^\{\}]*\})*\})/;
-	  my $data="";
-	  open my $fh,"<",$file or die "Cannot open $file";
-	  while(my $line = <$fh>){
-		  $data.=$line;
-       }
-       close $fh;
-       
-       my @groups = $data =~ m/$regexp/g;
-       if ($1 eq $moduleName){
-          $modules->{$1}={params=>$2,code=>$3};
-	   }
-
-	  return $self;
-  }  
 }
 
-__END__
-sphere(radius | d=diameter)
-cube(size, center)
-cube([width,depth,height], center)
-cylinder(h,r|d,center)
-cylinder(h,r1|d1,r2|d2,center)
-polyhedron(points, faces, convexity)
-import("….ext", convexity)
-linear_extrude(height,center,convexity,twist,slices)
-rotate_extrude(angle,convexity)
-surface(file = "….ext",center,convexity)
