@@ -164,11 +164,19 @@ Create an object using a predefined module (see [`car.pl`](https://github.com/sa
 creates variables that SCAD can use for customising objects easily
 
 * `build`
-  collects all the elements, and all the variables to generate a scad file
+Collects the elements specified (i.e. not all the elements, just the items required for the build)
+and all the variables to generate a scad file.  The scad file generated include all the variables defined,
+the modules built and the libraries used
    
 * `save`
-  saves the .scad file, and also uses openscad to generate images or 3D objects
-  from the script, or open it in openSCAD directly.
+saves the `.scad` file, and also uses openscad to generate images or 3D objects
+from the script, or open it in openSCAD directly after building the shape;
+`$scad->build("ext")->save("extrusion");` builds a scad file containing the item "ext",
+then saves the scad file as "extrusion.scad", and automatically opens OpenSCAD with that file.
+If another parameter passed, the generates a corresponding file, from one of
+(stl|png|t|off|wrl|amf|3mf|csg|dxf|svg|pdf|png|echo|ast|term|nef3|nefdbg)
+e.g. $scad->save("extrusion","png")
+
 
 * `import`
   imports files. Valid files are STL|OFF|OBJ|AMF3MF|STL|DXF|SVG files
