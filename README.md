@@ -126,9 +126,16 @@ a 2D drawing primitive that creates a polygon that may be extruded to create oth
 
 * `linear_extrude`
 A method to extrude a 2D shape
+```
+my $extrusion=new SCAD;
+$extrusion->variable({p0=>[0, 0],p1 => [0, -30],p2 => [15, 30],p3=> [35, 20],p4 => [35, 0]});
+$extrusion->variable("points",[qw/p0 p1 p2 p3 p4 /] );
+$extrusion->polygon("poly","points");
+$extrusion->linear_extrude("poly",{height=>100,twist=>180});
+```
 
 * `rotate_extrude`
-A method to extrude a 2D shape while rotating
+A method to extrude a 2D shape while rotating invokes similar to liner_extrude
 
 * `clone`
   Creates copies of elements with same features. e.g.`$car->clone("axle",qw/frontaxle rearaxle/);`   This just copies the code for the element into new elements, for subsequent transformation (otherwise all the elements are positioned in the same place overlying one another) 
