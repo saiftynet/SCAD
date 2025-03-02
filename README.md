@@ -137,6 +137,13 @@ $extrusion->linear_extrude("poly",{height=>100,twist=>180});
 
 * `rotate_extrude`
 A method to extrude a 2D shape while rotating invokes similar to liner_extrude
+```
+my $extrusion=new SCAD;
+$extrusion->circle("circle",{r=>5})
+          ->translate("circle",[10,0,0])
+          ->rotate_extrude("circle",{angle=>180})
+          ->build("circle")->save("extrusion");
+```
 
 * `clone`
   Creates copies of elements with same features. e.g.`$car->clone("axle",qw/frontaxle rearaxle/);`   This just copies the code for the element into new elements, for subsequent transformation (otherwise all the elements are positioned in the same place overlying one another) 
