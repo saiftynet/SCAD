@@ -112,8 +112,8 @@ the first item is the name of the new element created, the following elements ar
 If an element with the name of the first parameter does not exist, it is created, otherwise it is over-written.
   
 * `difference`
-Subtracts one or more elements from one element and creates a new element.e.g. `$scad->difference("wheel",qw/wheel nut nut1 nut2 nut3/); The first parameter is the name of the new element created, the second parameter refers to the item that all other elements are subtracted from.
-If an element with the name of the first parameter does not exist, it is created, otherwise it is over-written.
+Subtracts one or more elements from one element and creates a new element.e.g. `$scad->difference("wheel",qw/wheel nut nut1 nut2 nut3/)`;
+The first parameter`"wheel"` in this example is the name of the new element created, the second parameter refers to the item that all other elements are subtracted from. If an element with the name of the first parameter does not exist, it is created, otherwise it is over-written.So this statement takes the item "wheel" (the scendond parameter), subtracts all the nuts, and overwrites the code in "wheel"(first parameter). 
 
 * `intersection`
 creates an element representing the overlapping parts of 2 or more elements and creates a new element.e.g. `$scad->intersection("overlap",qw/item1  item2 item3/); The first parameter is the name of the new element created, the other names refer to elements which overlap neach other.
