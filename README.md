@@ -1,7 +1,7 @@
-# SCAD
+# CAD::OpenSCAD
 
 A simple SCAD Generator, allowing programmable 3D design from Perl.  This tool allows easy generation of
-OpenSCAD scripts that can be used to generate 3D Objects, in a fairly Perlish way. It is curretly working
+OpenSCAD scripts that can be used to generate 3D Objects, in a fairly Perlish way. It is currently working
 its way through the tutorial and will hopefully have an incremental features that allow complex models to
 be generated and produce files that can fed into a 3D printer.  
 
@@ -27,7 +27,7 @@ $car->cube("bodyBase",[60,20,10],1)
 ```
 ### Installation
 
-This early prototype and OpenSCAD.pm is a monolithic module.
+This is an early prototype and OpenSCAD.pm is a monolithic module.
 The suggested path structure is CAD/OpenSCAD.pm somewehere in a path in @INC.
 For experimenters (and this is a module not in CPAN yet so should be condidered experimental), i would recommend
 1) Install Object::Pad   (This is a dependency only to make my coding easier and for me to learn Object Pad...it may be removed if this causes a problem for sufficient people, though I dont see why it should)
@@ -119,7 +119,8 @@ The first parameter`"wheel"` in this example is the name of the new element crea
 creates an element representing the overlapping parts of 2 or more elements and creates a new element.e.g. `$scad->intersection("overlap",qw/item1  item2 item3/); The first parameter is the name of the new element created, the other names refer to elements which overlap neach other.
 
 * `circle`
-a 2D drawing primitive that creates a circle that may be extruded to create other 3D structures
+a 2D drawing primitive that creates a circle that may be extruded to create other 3D structures.
+e.g `$scad->circle("circle",{r=>5})`;
 
 * `polygon`
 a 2D drawing primitive that creates a polygon that may be extruded to create other 3D structures
@@ -163,6 +164,8 @@ The OpenSCAD language itself is very powerful, and some of these may be implemen
 Indeed, as a mature framework, many modules exist that enhance to its capabilities.  To be able to use or extend these
 capabilities through Perl is one  goal of this module.  Complex things take some time to render, and having a tool that
 can allow the generation multiple scenes/structures separately quickly to be later rendered by OpenSCAD is one goal.
+
+### Author SAIFTYNET
 
 
 
