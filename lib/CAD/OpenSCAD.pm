@@ -135,6 +135,7 @@ The second parameter is an arrayef of three elements defining disp[lacement.
   }
 
 =head3 rotate
+
 Rotates an element by name around in  X,Y,Z axes.e.g.
  C<< $scad->cylinder("wheel",{h=>2,r=>8},1)->rotate("wheel",[90,0,0]); >>.  The first parameter is the
 name of the element (the element must exist already).The second parameter is an arrayref of three rotations
@@ -282,6 +283,7 @@ A method to extrude a 2D shape while rotating invokes similar to liner_extrude
   }  
 
 =head3 liner_extrude
+
 A method to extrude a 2D shape see above for example
 =cut
 
@@ -292,6 +294,7 @@ A method to extrude a 2D shape see above for example
   }  
 
 =head3 color
+
 colors an item e.g. . C<< $scad->cylinder("ball",{r=>8})->color("ball","green")  >>. 
 =cut
   	  
@@ -312,6 +315,7 @@ colors an item e.g. . C<< $scad->cylinder("ball",{r=>8})->color("ball","green") 
 	  return $scr;
   }
 =head3 clone
+
 Creates copies of elements with same features. e.g.C<< $car->clone("axle",qw/frontaxle rearaxle/); >>
 This just copies the code for the element into new elements, for subsequent transformation 
 (otherwise all the elements are positioned in the same place overlying one another)
@@ -324,6 +328,7 @@ This just copies the code for the element into new elements, for subsequent tran
   }
   
 =head3 variable
+
 Creates variables that SCAD can use for customising objects easily 
 (see polygon example above)
 
@@ -368,6 +373,7 @@ Creates variables that SCAD can use for customising objects easily
   }
   
 =head3 build
+
 Collects the elements specified (i.e. not all the elements, just the items required for the build)
 and all the variables to generate a scad file.  The scad file generated include all the variables defined,
 the modules built and the libraries used  
@@ -389,6 +395,7 @@ the modules built and the libraries used
 	  return $self;
   }
 =head3 save
+
 saves the .scad file, and also uses openscad to generate images or 3D objects
 from the script, or open it in openSCAD directly after building the shape;
 C<< $scad->build("ext")->save("extrusion"); >> builds a scad file with the item "ext",
