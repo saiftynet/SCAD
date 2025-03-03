@@ -70,9 +70,14 @@ and potentially saved in various formats using OpenSCAD, or injected directly in
 use lib "lib";
 use CAD::OpenSCAD;
 my $scad=new SCAD;
+# optionally can add fs, fa and tab on intialisation
+# e.g my $scad=new SCAD(fs=>1, fa=>0.4, tab=>0);
 ```
 After creating a SCAD Object, elements can be added to the object, transformed etc.  **Note**: minimal error checking
 is done currently.  This will happen in the future, but for now the module relies on error checking at the OpenSCAD tool.
+
+* `set_fs` `set_fa` `set_tab`
+Using these, one can set parameters for the surface generation and script outputs. e.g. `$scad->set_fa(10)` 
 
 * `cube`
 Creates a cube element e.g. `$scad->cube("bodyBase",[60,20,10],1)`.  The first parameter is the
