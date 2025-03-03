@@ -10,3 +10,10 @@ pieChart($EnergyUtilisation)
 
 
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/pichart.png?raw=true)
+
+
+### [pichart.pl](https://github.com/saiftynet/SCAD/blob/main/Examples/circletext.pl)
+
+Creates a text in a circle
+
+![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/cicletext.png?raw=true)
