@@ -281,6 +281,14 @@ Example:-
       return $self;
   }
 
+=head3 text
+
+Allows 2D text shapes to be created, that may be extruded and manipulated like other items
+e.g. C<< $output->text($label,{text=>$textString,size=>$size,font=>$fontName}) >>
+or  C<< $output->text($label,"Hello World") >> to just use defaults.
+
+=cut  
+
   method text{
       my ($name,$dims)=@_;
       if (ref $dims){
@@ -508,7 +516,6 @@ e.g. C<< $scad->save("extrusion","png") >>
 }
 
 =head1 SUPPORT
-=cut
 
 =head1 COPYRIGHT AND DISCLAIMERS
 Copyright (c) 2025 Saif Ahmed.
@@ -519,7 +526,7 @@ modify it under the same terms as Perl itself.
 This program is distributed in the hope that it will be useful,
 but without any warranty; without even the implied warranty of
 merchantability or fitness for a particular purpose.
-=cut
+
 
 =head1 AUTHOR
 SAIFTYNET
