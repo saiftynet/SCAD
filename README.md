@@ -192,6 +192,12 @@ Indeed, as a mature framework, many modules exist that enhance to its capabiliti
 capabilities through Perl is one  goal of this module.  Complex things take some time to render, and having a tool that
 can allow the generation multiple scenes/structures separately quickly to be later rendered by OpenSCAD is one goal.
 
+* Analysis of Generated STL files. e.g. dimensions/bounding box of composite objects
+* Secondary Manipulation
+* Part interference detection
+* Simulations
+* Chart generation
+
 ### Author SAIFTYNET
 
 
