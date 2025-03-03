@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Object::Pad;
 
-our $VERSION=0.05;
+our $VERSION=0.06;
 =head1 CAD::OpenSCAD
 
 Module to generate .scad file from Perl
@@ -34,7 +34,9 @@ Optional parameters are hash C<< key=>value >> pairs.
 valid keys are C<fa>, C<fs> and C<tab>
 
      use CAD::OpenSCAD;
-     my $scad=new SCAD(<optional parameters>);
+     my $scad=new SCAD();
+     # optionally can add fs, fa and tab on intialisation
+     # e.g my $scad=new SCAD(fs=>1, fa=>0.4, tab=>0);
 
 New elements can be added to this SCAD object; each object is named
 for subsequent transformations
@@ -50,6 +52,12 @@ class SCAD{
    field $vars   = {};
    field $externalFiles=[];
    field $modules={};
+   field $status :writer;
+
+=head3 set_fs set_fa set_tab
+
+Using these, one can set parameters for the surface generation and script
+outputs. e.g. C<< $scad->set_fa(10)  >>
 
 =head3 cube
 
@@ -114,7 +122,7 @@ of defining radius of the sphere.
 	   my ($name,@itemNames)=@_;
 	   my $merged="";
 	   $merged.=$items->{$_} foreach @itemNames;
-	   $items->{$name}="{\n".$self->tab($merged)."}\n";
+	   $items->{$name}="{\n".$self->tabThis($merged)."}\n";
 	   return $self;
   }
 
@@ -129,7 +137,7 @@ The second parameter is an arrayef of three elements defining disp[lacement.
   method translate{
       my ($name,$dims)=@_;
       die "No item called $name" unless ($items->{$name});
-      $items->{$name}="translate(".$self->dimsToStr($dims,"ARRAY").")\n".$self->tab($items->{$name});
+      $items->{$name}="translate(".$self->dimsToStr($dims,"ARRAY").")\n".$self->tabThis($items->{$name});
       return $self;
 	  
   }
@@ -144,14 +152,22 @@ in degrees.
 
   method rotate{
       my ($name,$dims)=@_;
-      $items->{$name}="rotate(".$self->dimsToStr($dims,"ARRAY").")\n".$self->tab($items->{$name});
+      $items->{$name}="rotate(".$self->dimsToStr($dims,"ARRAY").")\n".$self->tabThis($items->{$name});
       return $self;
 	  
   }
+  
+=head3 resize
+
+Resizes an element by name to specified dimensions in X,Y,Z directions.e.g.
+C<< $scad->cube("bodyTop",[30,20,10],1)->resize("bodyTop",[3,2,6]) >>.  The first parameter is the
+name of the element (the element must exist already).The second parameter is an arrayref of three
+scale factors. 
+=cut
    
   method resize{
       my ($name,$dims)=@_;
-      $items->{$name}="resize(".$self->dimsToStr($dims,"ARRAY").")\n".$self->tab($items->{$name});
+      $items->{$name}="resize(".$self->dimsToStr($dims,"ARRAY").")\n".$self->tabThis($items->{$name});
       return $self;
 	  
   }
@@ -165,7 +181,7 @@ name of the element (the element must exist already).The second parameter is an 
   
   method scale{
       my ($name,$dims)=@_;
-      $items->{$name}="scale(".$self->dimsToStr($dims,"ARRAY").")\n".$self->tab($items->{$name});
+      $items->{$name}="scale(".$self->dimsToStr($dims,"ARRAY").")\n".$self->tabThis($items->{$name});
       return $self;
 	  
   } 
@@ -265,6 +281,20 @@ Example:-
       return $self;
   }
 
+  method text{
+      my ($name,$dims)=@_;
+      if (ref $dims){
+		   $dims->{text}="\"$dims->{text}\"";
+		   $dims->{font}="\"$dims->{font}\"";
+	   }
+	   else{
+		   $dims="\"$dims\"";
+	   };
+      $items->{$name}="text(".$self->dimsToStr($dims) .");\n";
+      return $self;
+  }
+
+
 =head3 rotate_extrude
 
 A method to extrude a 2D shape while rotating invokes similar to liner_extrude
@@ -278,7 +308,7 @@ A method to extrude a 2D shape while rotating invokes similar to liner_extrude
 	 	  
   method rotate_extrude{
       my ($name,$item,$dims)=@_;
-      $items->{$name}="rotate_extrude(".$self->dimsToStr($dims,"HASH")."){\n  ".$items->{$item}."}\n"  ;
+      $items->{$name}="\/\/$name\nrotate_extrude(".$self->dimsToStr($dims,"HASH")."){\n  ".$items->{$item}."}\n"  ;
       return $self;
   }  
 
@@ -289,7 +319,7 @@ A method to extrude a 2D shape see above for example
 
   method linear_extrude{
       my ($name,$item,$dims)=@_;
-      $items->{$name}="linear_extrude(".$self->dimsToStr($dims,"HASH")."){\n  ".$items->{$item}."}\n"  ;
+      $items->{$name}="\/\/$name\nlinear_extrude(".$self->dimsToStr($dims,"HASH")."){\n  ".$items->{$item}."}\n"  ;
       return $self;
   }  
 
@@ -300,13 +330,13 @@ colors an item e.g. . C<< $scad->cylinder("ball",{r=>8})->color("ball","green") 
   	  
   method color{
 	  my ($name,$color)=@_;
-      $items->{$name}="color(\"$color\")\n".$self->tab($items->{$name});
+      $items->{$name}="color(\"$color\")\n".$self->tabThis($items->{$name});
       return $self;
   }
 
 # internal methods
 
-  method tab{ # internal tabbing for scripts;
+  method tabThis{ # internal tabbing for scripts; name changed from tab to tabThis in v0.06)
 	  my $scr=shift;
 	  return unless $scr;
 	  my $tabs=" "x$tab;
@@ -412,16 +442,17 @@ e.g. C<< $scad->save("extrusion","png") >>
 	 # (my $newFile=$fileName)=~s/scad$/stl/;
 	  open my $fh,">",$fileName or die "Cannot save $fileName";
 	  print $fh $script;
+	  close $fh;
 	  if ($format  && ($format=~/^(stl|png|t|off|wrl|amf|3mf|csg|dxf|svg|pdf|png|echo|ast|term|nef3|nefdbg)$/)){
         (my $newFile=$fileName)=~s/scad$/$format/;
         system ("openscad", $fileName, "-o$newFile");
 	  }
 	  else{
-		  system ("openscad", $fileName)
+		  $status=system ("openscad", $fileName) unless $status;
 	  }
 	  return $self;
   }
-  
+
 ## External files
 
   method import{
