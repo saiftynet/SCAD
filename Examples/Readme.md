@@ -1,19 +1,26 @@
 # Examples
 
 ### [pichart.pl](https://github.com/saiftynet/SCAD/blob/main/Examples/piechart.pl)
-Draws a pieChart.  although not labled, note that the actual
+Subrutine to draws a pieChart.  although not labelled, note that the actual
 .scadfile generate contains the labels as comments
+
 ```
 my $EnergyUtilisation={Electricity=>4000,Gas=>5100,Petrol=>1000,Coal=>2300};
 pieChart($EnergyUtilisation)
 ```
-
 
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/pichart.png?raw=true)
 
 
 ### [circletext.pl](https://github.com/saiftynet/SCAD/blob/main/Examples/circletext.pl)
 
-Creates a text in a circle
+Subroutine to create a text in a circle
 
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/cicletext.png?raw=true)
+
+
+### [box.pl](https://github.com/saiftynet/SCAD/blob/main/Examples/box.pl) 
+
+Subroutine to create a box that can folded from a flat shape 
+
+![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/box.png?raw=true)
