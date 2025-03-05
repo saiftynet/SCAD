@@ -24,3 +24,9 @@ Subroutine to create a text in a circle
 Subroutine to create a box that can folded from a flat shape 
 
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/box.png?raw=true)
+
+### [gear.pl](https://github.com/saiftynet/SCAD/blob/main/Examples/gear.pl) 
+
+Subroutine to create a involute gears
+
+![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/involutegears.png?raw=true)
