@@ -70,7 +70,7 @@ use the output for 3D printing, charting, mechanical design, and even [animation
 
 
 
-![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/OpenSCAD.png | width=400)
+![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/OpenSCAD.png?raw=true)
 
 ### Methods implemented
 ```
