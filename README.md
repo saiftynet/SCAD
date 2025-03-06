@@ -66,7 +66,7 @@ and potentially saved in various formats using OpenSCAD, or injected directly in
 At this point the main goal is to have the ability to generate 3D objects within perl programs. With this
 tool one can use data acquired in perl programs to create 3D objects without having to know the OpenSCAD
 scripting language although knowing this would allow fuller exploitation of the native SCAD powers. One could
-use the output for [3D printing](https://github.com/saiftynet/SCAD/blob/main/Examples/box.pl), [charting](https://github.com/saiftynet/SCAD/tree/main/Examples#pichartpl),[graphical design](https://github.com/saiftynet/SCAD/tree/main/Examples#circletextpl),[mechanical design](https://github.com/saiftynet/SCAD/tree/main/Examples#gearpl), and even [animations](https://github.com/saiftynet/SCAD/tree/main/Examples#animation-using-scad)
+use the output for [3D printing](https://github.com/saiftynet/SCAD/blob/main/Examples/box.pl), [charting](https://github.com/saiftynet/SCAD/tree/main/Examples#pichartpl), [graphical design](https://github.com/saiftynet/SCAD/tree/main/Examples#circletextpl),[mechanical design](https://github.com/saiftynet/SCAD/tree/main/Examples#gearpl), and even [animations](https://github.com/saiftynet/SCAD/tree/main/Examples#animation-using-scad)
 
 
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/animatedgears.gif?raw=true)
