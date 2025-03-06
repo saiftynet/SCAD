@@ -63,7 +63,14 @@ identification. These operations produce items that can be collected, and built 
 and potentially saved in various formats using OpenSCAD, or injected directly into the GUI tool for further fine-tuning.
 (OpenSCAD is required to be installed for rendering)
 
-![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/OpenSCAD.png?raw=true)
+At this point the main goal is to have the ability to generate 3D objects within perl programs. With this
+tool one can use data acquired in perl programs to create 3D objects without having to know the OpenSCAD
+scripting language although knowing this would allow fuller exploitation of the native SCAD powers. One could
+use the output for 3D printing, charting, mechanical design, and even [animations]
+
+
+
+![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/OpenSCAD.png?raw=true width=400)
 
 ### Methods implemented
 ```
