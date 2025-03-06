@@ -58,15 +58,16 @@ the use of scripted generation and manipulation of 3D objects, and this module a
 accessible in Perl. Object::Pad, a modern OOP paradigm, is used but deliberately not using its full features.  The OpenSCAD GUI can be used to display outputs,
 although  STL, PNG,and SCAD files  (and others) may also be generated.  The example script [`car.pl`](https://github.com/saiftynet/SCAD/blob/main/car.pl) 
 replicates one of the [tutorial](https://en.wikibooks.org/wiki/OpenSCAD_Tutorial/Chapter_1) objects.  As you can see,
-the object is returned after every operation, allowing daisy-chaining of operations.  The objects are named for easy 
-identification. These operations produce items that can be collected, and built (to generate the SCAD script),
-and potentially saved in various formats using OpenSCAD, or injected directly into the GUI tool for further fine-tuning.
-(OpenSCAD is required to be installed for rendering)
+the SCAD object is returned after every operation, allowing daisy-chaining of operations.  The items within 
+are named for easy identification and often appear in the .scad file generated as comments. These items can be collected,
+and built (to generate the SCAD script), and potentially saved in various formats using OpenSCAD,
+or injected directly into the GUI tool for further fine-tuning. (OpenSCAD is required to be installed for rendering)
 
 At this point the main goal is to have the ability to generate 3D objects within perl programs. With this
 tool one can use data acquired in perl programs to create 3D objects without having to know the OpenSCAD
-scripting language although knowing this would allow fuller exploitation of the native SCAD powers. One could
-use the output for [3D printing](https://github.com/saiftynet/SCAD/blob/main/Examples/box.pl), [charting](https://github.com/saiftynet/SCAD/tree/main/Examples#pichartpl),
+scripting language, although knowing this would allow fuller exploitation of the native SCAD powers. One could
+use the output for [3D printing](https://github.com/saiftynet/SCAD/blob/main/Examples/box.pl),
+[charting](https://github.com/saiftynet/SCAD/tree/main/Examples#pichartpl),
 [graphical design](https://github.com/saiftynet/SCAD/tree/main/Examples#circletextpl),
 [mechanical design](https://github.com/saiftynet/SCAD/tree/main/Examples#gearpl),
 and even [animations](https://github.com/saiftynet/SCAD/tree/main/Examples#animation-using-scad)
