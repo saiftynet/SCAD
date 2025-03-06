@@ -77,66 +77,100 @@ After creating a SCAD Object, elements can be added to the object, transformed e
 is done currently.  This will happen in the future, but for now the module relies on error checking at the OpenSCAD tool.
 
 * `set_fs` `set_fa` `set_tab`
+  
 Using these, one can set parameters for the surface generation and script outputs. e.g. `$scad->set_fa(10)` 
 
-* `cube`
+* `cube` *new element created*
+  
 Creates a cube element e.g. `$scad->cube("bodyBase",[60,20,10],1)`.  The first parameter is the
 name of the element (if the named element exists already, it will be over-written). The second parameter
 is an arrayref of three dimensions. The third parameter defines whether the element is centered in the origin
 (a true value here centers the element)
 
-* `cylinder`
+* `cylinder` *new element created*
+  
 Creates a cylinder element e.g. `$scad->cylinder("wheel",{h=>2,r=>8},1)`.  The first parameter is the
 name of the element (if the named element exists already, it will be over-written).The second parameter
 is a hashref of defining radius and height. The third parameter defines whether the element is centered
 on the origin (a true value here centers the element)
 
-* `sphere`
+* `sphere` *new element created*
+  
 Creates a sphere element e.g. `$scad->cylinder("ball",{r=>8})`.  The first parameter is the
 name of the element (if the named element exists already, it will be over-written).The second parameter
 is a hashref of defining radius of the sphere.
 
-* `translate`
+* `translate`  *element modified*
+  
 Moves an element by name a specified displacement in X,Y,Z directions.e.g.
 `$scad->cube("bodyTop",[30,20,10],1)->translate("bodyTop",[0,0,5])`  The first parameter is the
 name of the element (the element must exist already).The second parameter is an arrayref of three elements
 defining displacement.
 
-* `scale`
+* `scale`  *element modified*
+  
 Scales an element by name by specified ratios in X,Y,Z directions.e.g.
 `$scad->cube("bodyTop",[30,20,10],1)->scale("bodyTop",[1,2,0.5])`.  The first parameter is the
 name of the element (the element must exist already).The second parameter is an arrayref of three scale factors.
 
-* `rotate`
+* `rotate`  *element modified*
+  
   Rotates an element by name around in  X,Y,Z axes.e.g.
 `$scad->cylinder("wheel",{h=>2,r=>8},1)->rotate("wheel",[90,0,0]);`.  The first parameter is the
 name of the element (the element must exist already).The second parameter is an arrayref of three rotations
 in degrees.
 
-* `union`
+* `union` *new element created*
+  
 Implicitly joins multiple elements into one element.e.g. $scad->union("wheel",qw/wheel nut nut1 nut2 nut3/);
 the first item is the name of the new element created, the following elements are elements to be joined together.
 If an element with the name of the first parameter does not exist, it is created, otherwise it is over-written.
   
-* `difference`
+* `difference` *new element created*
+  
 Subtracts one or more elements from one element and creates a new element.e.g. `$scad->difference("wheel",qw/wheel nut nut1 nut2 nut3/)`;
 The first parameter`"wheel"` in this example is the name of the new element created, the second parameter refers to the item that all other elements are subtracted from. If an element with the name of the first parameter does not exist, it is created, otherwise it is over-written.So this statement takes the item "wheel" (the scendond parameter), subtracts all the nuts, and overwrites the code in "wheel"(first parameter). 
 
-* `intersection`
+* `intersection` *new element created*
+  
 creates an element representing the overlapping parts of 2 or more elements and creates a new element.e.g. `$scad->intersection("overlap",qw/item1  item2 item3/); The first parameter is the name of the new element created, the other names refer to elements which overlap neach other.
 
-* `circle`
+* `circle`  *new element created*
+  
 a 2D drawing primitive that creates a circle that may be extruded to create other 3D structures.
 e.g `$scad->circle("circle",{r=>5})`;
 
-* square
+* `square` *new element created*
+  
 a 2D drawing primitive that creates a rectangle that may be extruded to create other 3D structures.
-e.g `$scad->square("square",[10,10])`;
+e.g `$scad->square("square",[10,10]);`.,  Rectingles may be created using the same method, but squares
+may also be created using  `$scad->square("square",5);`
 
-* `polygon`
-a 2D drawing primitive that creates a polygon that may be extruded to create other 3D structures
+* `polygon` *new element created*
+  
+a 2D drawing primitive that creates a polygon that may be extruded to create other 3D structures.
+The easiest way to do it in Perl is to create an arrayref of points. and pass that as a parameter.
+an example of this is the gear.pl in Examples.  the linear_extrude option below also provides an example
+using SCAD variables.  A simple solution making a filled line chart is shown below :- 
+```
+# create a Filled Line Chart from values
+my @values=(10,30,15,40,35,45,40,35,10);
+my $separation =10; my $start=[0,0];my $count=0;
 
-* `linear_extrude`
+# starting corner of chart
+my $points=[$start];
+# add points to be plotted as a line graph                                   
+push @$points, [$separation*$count++,$_] foreach @values;
+# add end corner
+push @$points, [$separation*(--$count),$start->[1]];
+
+my $chart=new SCAD;	
+$chart->polygon("chart",$points)
+      ->build("chart")->save("filledline");
+```
+
+* `linear_extrude` *new element created*
+  
 A method to extrude a 2D shape.  creates a new 3D objects from a 2d shape *: API CHANGED: method creates new item now*
 ```
 my $extrusion=new SCAD;
@@ -146,7 +180,7 @@ $extrusion->polygon("poly","points");
 $extrusion->linear_extrude("extrudedPoly","poly",{height=>100,twist=>180});
 ```
 
-* `rotate_extrude`
+* `rotate_extrude` **new element created**
 A method to extrude a 2D shape while rotating invokes similar to liner_extrude *: API CHANGED: method creates new item now*
 ```
 my $extrusion=new SCAD;
@@ -156,13 +190,16 @@ $extrusion->circle("circle",{r=>5})
           ->build("extrudedCircle")->save("extrusion");
 ```
 
-* `clone`
+* `clone` *one or more new elements created*
+  
   Creates copies of elements with same features. e.g.`$car->clone("axle",qw/frontaxle rearaxle/);`   This just copies the code for the element into new elements, for subsequent transformation (otherwise all the elements are positioned in the same place overlying one another) 
 
-* `makeModule` (v0.02)
+* `makeModule` (v0.02) *experimental*
+  
 converts an object into a module to create other objects (see [`car.pl`](https://github.com/saiftynet/SCAD/blob/main/car.pl) for an example ).  Using modules reduces code repetition in the generated .scad file.
 
-* `runModule` (v0.02)
+* `runModule` (v0.02) *experimental*
+  
 Create an object using a predefined module (see [`car.pl`](https://github.com/saiftynet/SCAD/blob/main/car.pl) for an example ).
 
 * `variable`
@@ -183,10 +220,12 @@ If another parameter passed, the generates a corresponding file, from one of
 e.g. $scad->save("extrusion","png")
 
 
-* `import`
+* `import` *experimental*
+  
   imports files. Valid files are STL|OFF|OBJ|AMF3MF|STL|DXF|SVG files
 
-* `use`
+* `use` *experimental*
+  
    uses library files.  These are external files in OpenSCAD paths and allow access to OpenSCADs extensive libraries.  The modules in these libraries are executed using `$scad runModule($modulename,$name_for_item,$params_as_scalar_or_ref)`
 
 
