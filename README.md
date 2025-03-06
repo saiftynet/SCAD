@@ -111,7 +111,13 @@ defining displacement.
   
 Scales an element by name by specified ratios in X,Y,Z directions.e.g.
 `$scad->cube("bodyTop",[30,20,10],1)->scale("bodyTop",[1,2,0.5])`.  The first parameter is the
-name of the element (the element must exist already).The second parameter is an arrayref of three scale factors.
+name of the element (the element must exist already). The second parameter is an arrayref of three scale factors.
+
+* `resize`  *element modified*
+  
+Resizes an element by name to specified dimensions in X,Y,Z directions.e.g.
+`$scad->cube("bodyTop",[30,20,10],1)->resize("bodyTop",[30,40,5]);`.  The first parameter is the
+name of the element (the element must exist already). The second parameter is an arrayref of three new dimensions.
 
 * `rotate`  *element modified*
   
