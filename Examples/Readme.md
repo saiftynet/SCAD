@@ -30,3 +30,17 @@ Subroutine to create a box that can folded from a flat shape
 Subroutine to create a involute gears
 
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/involutegears.png?raw=true)
+
+### Animation using SCAD
+
+OpenSCAD Uses $t to handle animations.  The best way to pass these is using single quotes for example.
+
+```
+$scad->polygon("outline",$gear->{points})
+	  ->linear_extrude("gear","outline","10")
+	  ->color("gear","red")
+	  ->rotate("gear",[0,0,'$t*360'])
+```
+
+![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/animatedgears.gif?raw=true)
+
