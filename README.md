@@ -90,6 +90,8 @@ is done currently.  This will happen in the future, but for now the module relie
   
 Using these, one can set parameters for the surface generation and script outputs. e.g. `$scad->set_fa(10)` 
 
+#### 3D Primitives
+
 * `cube` *new element created*
   
 Creates a cube element e.g. `$scad->cube("bodyBase",[60,20,10],1)`.  The first parameter is the
@@ -109,6 +111,8 @@ on the origin (a true value here centers the element)
 Creates a sphere element e.g. `$scad->cylinder("ball",{r=>8})`.  The first parameter is the
 name of the element (if the named element exists already, it will be over-written).The second parameter
 is a hashref of defining radius of the sphere.
+
+#### Transformations
 
 * `translate`  *element modified*
   
@@ -136,6 +140,8 @@ name of the element (the element must exist already). The second parameter is an
 name of the element (the element must exist already).The second parameter is an arrayref of three rotations
 in degrees.
 
+#### Boolean Perocedures
+
 * `union` *new element created*
   
 Implicitly joins multiple elements into one element.e.g. $scad->union("wheel",qw/wheel nut nut1 nut2 nut3/);
@@ -150,6 +156,9 @@ The first parameter`"wheel"` in this example is the name of the new element crea
 * `intersection` *new element created*
   
 creates an element representing the overlapping parts of 2 or more elements and creates a new element.e.g. `$scad->intersection("overlap",qw/item1  item2 item3/); The first parameter is the name of the new element created, the other names refer to elements which overlap neach other.
+
+
+#### 2D Primitives
 
 * `circle`  *new element created*
   
@@ -185,6 +194,8 @@ $chart->polygon("chart",$points)
       ->build("chart")->save("filledline");
 ```
 
+#### Extrusions
+
 * `linear_extrude` *new element created*
   
 A method to extrude a 2D shape.  creates a new 3D objects from a 2d shape *: API CHANGED: method creates new item now*
@@ -206,20 +217,14 @@ $extrusion->circle("circle",{r=>5})
           ->build("extrudedCircle")->save("extrusion");
 ```
 
+#### Item List manipulation
+
 * `clone` *one or more new elements created*
-  
+
   Creates copies of elements with same features. e.g.`$car->clone("axle",qw/frontaxle rearaxle/);`   This just copies the code for the element into new elements, for subsequent transformation (otherwise all the elements are positioned in the same place overlying one another) 
 
-* `makeModule` (v0.02) *experimental*
-  
-converts an object into a module to create other objects (see [`car.pl`](https://github.com/saiftynet/SCAD/blob/main/car.pl) for an example ).  Using modules reduces code repetition in the generated .scad file.
+#### Build and Save
 
-* `runModule` (v0.02) *experimental*
-  
-Create an object using a predefined module (see [`car.pl`](https://github.com/saiftynet/SCAD/blob/main/car.pl) for an example ).
-
-* `variable`
-creates variables that SCAD can use for customising objects easily
 
 * `build`
 Collects the elements specified (i.e. not all the elements, just the items required for the build)
@@ -234,6 +239,21 @@ then saves the scad file as "extrusion.scad", and automatically opens OpenSCAD w
 If another parameter passed, the generates a corresponding file, from one of
 (stl|png|t|off|wrl|amf|3mf|csg|dxf|svg|pdf|png|echo|ast|term|nef3|nefdbg)
 e.g. $scad->save("extrusion","png")
+
+
+
+#### Experimental
+
+* `makeModule` (v0.02) *experimental*
+  
+converts an object into a module to create other objects (see [`car.pl`](https://github.com/saiftynet/SCAD/blob/main/car.pl) for an example ).  Using modules reduces code repetition in the generated .scad file.
+
+* `runModule` (v0.02) *experimental*
+  
+Create an object using a predefined module (see [`car.pl`](https://github.com/saiftynet/SCAD/blob/main/car.pl) for an example ).
+
+* `variable`
+creates variables that SCAD can use for customising objects easily
 
 
 * `import` *experimental*
