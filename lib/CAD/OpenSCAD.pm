@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Object::Pad;
 
-our $VERSION=0.06;
+our $VERSION=0.07;
 =head1 CAD::OpenSCAD
 
 Module to generate .scad file from Perl
@@ -24,7 +24,7 @@ This module allows creation of SCAD scripts for running through OpenSCAD,
 the "Programmers CAD Application". OpenSCAD can be scripted, having a
 fairly comprehensive language to create complex 3D objects.
 CAD::OpenSCAD allows generation and manipulation of 3D objects in a
-Perlish way,while relying on OpenSCAD to all the hardwork, merely by
+Perlish way,while relying on OpenSCAD to do all the hardwork, merely by
 generating SCAD scripts.
 
 =head1 MAIN METHODS
@@ -48,16 +48,24 @@ class SCAD{
    field $items  :reader :writer //={};
    field $fa     :writer :param //=1;
    field $fs     :writer :param //=0.4;
+   field $vp     :writer;
+   field $vpt    :writer;  # viewport translation;
+   field $vpd    :writer;  # viewport camera distance
+   field $vpf    :writer;  # viewport camera field of view
+   field $preview:writer;  # preview
    field $tab    :writer :param //=2;
    field $vars   = {};
    field $externalFiles=[];
    field $modules={};
    field $status :writer;
+   field $extensions  ={};
 
 =head3 set_fs set_fa set_tab
 
 Using these, one can set parameters for the surface generation and script
 outputs. e.g. C<< $scad->set_fa(10)  >>
+
+=head2 3D Primitive Shapes
 
 =head3 cube
 
@@ -77,7 +85,7 @@ element is centered in the origin (a true value here centers the element)
    
 =head3 cylinder
 
-Creates a cylinder element e.g. C<< $scad->cylinder("wheel",{h=>2,r=>8},1) >>.
+Creates a cylinder element e.g. C<< $scad->cylinder("wheel",{h=>2,r=>8},1); >>.
 The first parameter is the name of the element (if the named element
 exists already, it will be over-written). The second parameter is a
 hashref of defining radius and height. The third parameter defines whether
@@ -92,7 +100,7 @@ the element is centered on the origin (a true value here centers the element)
 
 =head3 sphere
 
-Creates a sphere element e.g. C<< $scad->cylinder("ball",{r=>8})  >>. The
+Creates a sphere element e.g. C<< $scad->sphere("ball",{r=>8});  >>. The
 first parameter is the name of the element (if the named element exists
 already, it will be over-written).The second parameter is a hashref
 of defining radius of the sphere. 
@@ -112,26 +120,15 @@ of defining radius of the sphere.
   }
 
 
-  
-  method remove{  # remove unneeded shapes
-      delete $items->{$_} foreach (@_);
-      return $self;
-  }
-  
-  method group{  # group shapes together
-	   my ($name,@itemNames)=@_;
-	   my $merged="";
-	   $merged.=$items->{$_} foreach @itemNames;
-	   $items->{$name}="{\n".$self->tabThis($merged)."}\n";
-	   return $self;
-  }
+
+=head2 Transformations
 
 =head3 translate
 
 Moves an element by name a specified displacement in X,Y,Z directions
-.e.g. C<< $scad->cube("bodyTop",[30,20,10],1)->translate("bodyTop",[0,0,5]) >> 
+.e.g. C<< $scad->cube("bodyTop",[30,20,10],1)->translate("bodyTop",[0,0,5]); >> 
 The first parameter is the name of the element (the element must exist already).
-The second parameter is an arrayef of three elements defining disp[lacement.
+The second parameter is an arrayref of three elements defining displacement.
 =cut
 
   method translate{
@@ -144,11 +141,12 @@ The second parameter is an arrayef of three elements defining disp[lacement.
 
 =head3 rotate
 
-Rotates an element by name around in  X,Y,Z axes.e.g.
- C<< $scad->cylinder("wheel",{h=>2,r=>8},1)->rotate("wheel",[90,0,0]); >>.  The first parameter is the
+Rotates an element by name around X,Y,Z axes about the origin [0,0,0].e.g.
+C<< $scad->cylinder("wheel",{h=>2,r=>8},1)->rotate("wheel",[90,0,0]); >>.  The first parameter is the
 name of the element (the element must exist already).The second parameter is an arrayref of three rotations
 in degrees.
 =cut
+
 
   method rotate{
       my ($name,$dims)=@_;
@@ -157,10 +155,28 @@ in degrees.
 	  
   }
   
+=head3 mirror
+
+Mirrors an element by name about a plane. That plane is defined by the normal to that vector, 
+and the plane goes through the origing.
+C<< $scad->cube([2,2,2])->mirror("cube",[1,0,0]); >>.  The first parameter is the
+name of the element (the element must exist already). The second parameter
+is an arrayref containg the planes normal e.g.[1,0,0] implies a miorroring about the X-axis.
+
+=cut
+ 
+
+  method mirror{
+      my ($name,$dims)=@_;
+      $items->{$name}="mirror(".$self->dimsToStr($dims,"ARRAY").")\n".$self->tabThis($items->{$name});
+      return $self;
+	  
+  }
+    
 =head3 resize
 
 Resizes an element by name to specified dimensions in X,Y,Z directions.e.g.
-C<< $scad->cube("bodyTop",[30,20,10],1)->resize("bodyTop",[3,2,6]) >>.  The first parameter is the
+C<< $scad->cube("bodyTop",[30,20,10],1)->resize("bodyTop",[3,2,6]); >>.  The first parameter is the
 name of the element (the element must exist already).The second parameter is an arrayref of three
 scale factors. 
 =cut
@@ -175,7 +191,7 @@ scale factors.
 =head3 scale
 
 Scales an element by name by specified ratios in X,Y,Z directions.e.g.
-C<< $scad->cube("bodyTop",[30,20,10],1)->scale("bodyTop",[1,2,0.5]) >>.  The first parameter is the
+C<< $scad->cube("bodyTop",[30,20,10],1)->scale("bodyTop",[1,2,0.5]); >>.  The first parameter is the
 name of the element (the element must exist already).The second parameter is an arrayref of three scale factors. 
 =cut
   
@@ -185,6 +201,58 @@ name of the element (the element must exist already).The second parameter is an 
       return $self;
 	  
   } 
+
+=head3 multimatrix
+Multiplies the geometry of all child elements with the given
+L<affine|https://en.wikipedia.org/wiki/Transformation_matrix#Affine_transformations>
+ transformation matrix, where the matrix is 4×3, or a 4×4 matrix
+with the 4th row always forced to [0,0,0,1].  
+=cut
+  
+  method  multimatrix{
+      my ($name,$dims)=@_;
+      $items->{$name}="multimatrix(".$self->dimsToStr($dims,"ARRAY").")\n".$self->tabThis($items->{$name});
+      return $self;
+	  
+  } 
+
+
+=head3 offset
+Offset generates a new 2d interior or exterior outline from an existing outline.
+There are two modes of operation: radial and delta.
+=cut
+
+  method  offset{
+      my ($name,$dims)=@_;
+      $items->{$name}="offset(".$self->dimsToStr($dims,"HASH").")\n".$self->tabThis($items->{$name});
+      return $self;
+	  
+  } 
+
+=head3 hull
+Displays the convex hull of child nodes.
+=cut
+  
+  method  hull{
+      my ($name,$dims)=@_;
+      $items->{$name}="hull()\n".$self->tabThis($items->{$name});
+      return $self;
+	  
+  }   
+
+=head3 minkowski
+
+=cut
+  
+  method  minkowski{
+      my ($name,$dims)=@_;
+      $items->{$name}="minkowski(".$self->dimsToStr($dims).")\n".$self->tabThis($items->{$name});
+      return $self;
+	  
+  }   
+  
+  
+=head2 Boolean Operations
 
 =head3  union
 
@@ -210,9 +278,9 @@ e.g. C<< $scad->difference("wheel",qw/wheel nut nut1 nut2 nut3/); >>
 The first parameter`"wheel"` in this example is the name of the new element created,
 the second parameter refers to the item that all other elements are subtracted from.
 If an element with the name of the first parameter does not exist, it is created,
-otherwise it is over-written.So this statement takes the item "wheel"
+otherwise it is over-written. So this statement takes the item "wheel"
 (the scendond parameter), subtracts all the nuts, and overwrites the code
-in "wheel"(first parameter). 
+in "wheel" (first parameter). 
 
 =cut    
   method difference{
@@ -238,6 +306,8 @@ elements which overlap neach other.
       $items->{$name}="\/\/ $name\nintersection()".$items->{$name}  ;
       return $self;
   }  
+
+=head2 2D Primitive Shapes
 
 =head3 circle
 
@@ -303,6 +373,8 @@ or  C<< $output->text($label,"Hello World") >> to just use defaults.
   }
 
 
+=head2 Extrusion
+
 =head3 rotate_extrude
 
 A method to extrude a 2D shape while rotating invokes similar to liner_extrude
@@ -330,6 +402,7 @@ A method to extrude a 2D shape see above for example
       $items->{$name}="\/\/$name\nlinear_extrude(".$self->dimsToStr($dims,"HASH")."){\n  ".$items->{$item}."}\n"  ;
       return $self;
   }  
+
 
 =head3 color
 
@@ -365,6 +438,35 @@ This just copies the code for the element into new elements, for subsequent tran
 	   return $self;
   }
   
+  method remove{  # remove unneeded shapes
+      delete $items->{$_} foreach (@_);
+      return $self;
+  }
+  
+  method group{  # group shapes together
+	   my ($name,@itemNames)=@_;
+	   my $merged="";
+	   $merged.=$items->{$_} foreach @itemNames;
+	   $items->{$name}="{\n".$self->tabThis($merged)."}\n";
+	   return $self;
+  }
+  
+  method cleanUp{ # remove items with certain patterns
+	   my ($regExp)=@_;
+	   foreach my $i (keys %$items){
+	     delete $items->{$i} if $i=~$regExp;
+	   }
+	   return $self;
+  }
+
+  
+  method list{ # remove items with certain patterns
+	   print $_,"\n" foreach (keys %$items);
+	   return $self;
+  }
+    
+
+    
 =head3 variable
 
 Creates variables that SCAD can use for customising objects easily 
@@ -403,12 +505,11 @@ Creates variables that SCAD can use for customising objects easily
         elsif ($expected && $expected eq "HASH"){
 			die "Incorrect parameter...should be hashref";
 		}
-        else{
-           die "Incorrect dimensions...should be arrayref of 3 numbers or hashref or string";
-        }
       }
       return $dims;
   }
+  
+=head2 Build and Save
   
 =head3 build
 
@@ -429,7 +530,14 @@ the modules built and the libraries used
 		  }
 	  }
 	  $script.=$modules->{$_}  foreach (keys %$modules);
-	  $script.=$items->{$_}  foreach @_;
+	  foreach (@_){
+		  if ($items->{$_}){# add items if they exist
+			  $script.=$items->{$_}  ;
+		  } 
+		  else {
+			  warn "$_ does not exist to build"
+		  }
+	  }
 	  return $self;
   }
 =head3 save
@@ -530,4 +638,7 @@ merchantability or fitness for a particular purpose.
 
 =head1 AUTHOR
 SAIFTYNET
+
+=head1 CONTRIBUTORS
+jmlynesjr
 =cut
