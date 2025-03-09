@@ -1,7 +1,10 @@
 ## Changes
 
 ### Version 0.07
-* Added text() method 
+* Added text() method
+* Developed a protype API for perl modules to extend CAD::OpenSCAD
+* Converted one of the examples into a module Gears.pm
+* Added Math.pm for some 3D manipulations
 
 ### Version 0.06 
 * Modified linear_extrude and rotate_extrude to create new object labels (rather than reuse the 2d objects label)
