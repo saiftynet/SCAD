@@ -7,6 +7,8 @@ also experimental method is using Perl Modules.  Again, I have to
 figure our how best to do this.  Like [CAD::OpenSCAD](https://github.com/saiftynet/SCAD/)
 these examples us Object::Pad, but again, not using its full features.
 
+![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/gears.gif?raw=true)
+
 ### The template
 
 The location of our Module that will come with OpenSCAD.pm is in a folder called 
