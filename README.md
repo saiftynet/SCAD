@@ -135,10 +135,26 @@ name of the element (the element must exist already). The second parameter is an
 
 * `rotate`  *element modified*
   
-  Rotates an element by name around in  X,Y,Z axes.e.g.
+Rotates an element by name around in  X,Y,Z axes.e.g.
 `$scad->cylinder("wheel",{h=>2,r=>8},1)->rotate("wheel",[90,0,0]);`.  The first parameter is the
 name of the element (the element must exist already).The second parameter is an arrayref of three rotations
 in degrees.
+
+* `hull`
+
+Displays the convex hull of child nodes.
+
+* `offset`
+
+Offset generates a new 2d interior or exterior outline from an existing outline.
+There are two modes of operation: radial and delta.
+  
+* `multimtrix`
+
+Multiplies the geometry of all child elements with the given
+L<affine|https://en.wikipedia.org/wiki/Transformation_matrix#Affine_transformations>
+ transformation matrix, where the matrix is 4×3, or a 4×4 matrix
+with the 4th row always forced to [0,0,0,1].  
 
 #### Boolean Perocedures
 
@@ -262,7 +278,7 @@ creates variables that SCAD can use for customising objects easily
 
 * `use` *experimental*
   
-   uses library files.  These are external files in OpenSCAD paths and allow access to OpenSCADs extensive libraries.  The modules in these libraries are executed using `$scad runModule($modulename,$name_for_item,$params_as_scalar_or_ref)`
+Uses library files.  These are external files in OpenSCAD paths and allow access to OpenSCADs extensive libraries.  The modules in these libraries are executed using `$scad runModule($modulename,$name_for_item,$params_as_scalar_or_ref)`
 
 
 ### Planned Features
