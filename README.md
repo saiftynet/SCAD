@@ -243,11 +243,13 @@ $extrusion->circle("circle",{r=>5})
 
 
 * `build`
+
 Collects the elements specified (i.e. not all the elements, just the items required for the build)
 and all the variables to generate a scad file.  The scad file generated include all the variables defined,
 the modules built and the libraries used
    
 * `save`
+
 saves the `.scad` file, and also uses openscad to generate images or 3D objects
 from the script, or open it in openSCAD directly after building the shape;
 `$scad->build("ext")->save("extrusion");` builds a scad file containing the item "ext",
@@ -274,7 +276,7 @@ creates variables that SCAD can use for customising objects easily
 
 * `import` *experimental*
   
-  imports files. Valid files are STL|OFF|OBJ|AMF3MF|STL|DXF|SVG files
+imports files. Valid files are STL|OFF|OBJ|AMF3MF|STL|DXF|SVG files
 
 * `use` *experimental*
   
