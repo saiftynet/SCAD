@@ -27,7 +27,6 @@ The typical internal structure may be (see [Gears.pm]())
 use strict; use warnings;
 use lib "../../../lib";
 use Object::Pad;
-use CAD::OpenSCAD;
 use CAD::OpenSCAD::Math;
 	
 our $Math=new Math;
