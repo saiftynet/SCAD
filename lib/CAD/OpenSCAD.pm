@@ -203,9 +203,10 @@ name of the element (the element must exist already).The second parameter is an 
   } 
 
 =head3 multimatrix
+
 Multiplies the geometry of all child elements with the given
 L<affine|https://en.wikipedia.org/wiki/Transformation_matrix#Affine_transformations>
- transformation matrix, where the matrix is 4×3, or a 4×4 matrix
+ transformation matrix, where the matrix is 4X3, or a 4X4 matrix
 with the 4th row always forced to [0,0,0,1].  
 =cut
   
@@ -218,6 +219,7 @@ with the 4th row always forced to [0,0,0,1].
 
 
 =head3 offset
+
 Offset generates a new 2d interior or exterior outline from an existing outline.
 There are two modes of operation: radial and delta.
 =cut
@@ -230,6 +232,7 @@ There are two modes of operation: radial and delta.
   } 
 
 =head3 hull
+
 Displays the convex hull of child nodes.
 =cut
   
@@ -542,7 +545,7 @@ the modules built and the libraries used
   }
 =head3 save
 
-saves the .scad file, and also uses openscad to generate images or 3D objects
+Saves the .scad file, and also uses openscad to generate images or 3D objects
 from the script, or open it in openSCAD directly after building the shape;
 C<< $scad->build("ext")->save("extrusion"); >> builds a scad file with the item "ext",
 then saves the scad file, and automatically opens OpenSCAD file.
