@@ -1,5 +1,10 @@
 ## Changes
 
+### Version 0.08
+* Documentation changes
+* added a multimatrix method `skew`
+* Enhanced Gears.pm to allow creation of involute helix gears, bevel gears, bihelical gears and racks
+
 ### Version 0.07
 * Added text() method
 * Developed a protype API for perl modules to extend CAD::OpenSCAD
