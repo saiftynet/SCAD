@@ -1,8 +1,12 @@
 use strict;
 use warnings;
+use lib "../";
 use Object::Pad;
+use CAD::OpenSCAD::Math;
+our $VERSION=0.08;
 
-our $VERSION=0.07;
+our $Math=new Math;
+
 =head1 CAD::OpenSCAD
 
 Module to generate .scad file from Perl
@@ -142,7 +146,10 @@ The second parameter is an arrayref of three elements defining displacement.
 =head3 rotate
 
 Rotates an element by name around X,Y,Z axes about the origin [0,0,0].e.g.
-C<< $scad->cylinder("wheel",{h=>2,r=>8},1)->rotate("wheel",[90,0,0]); >>.  The first parameter is the
+
+    $scad->cylinder("wheel",{h=>2,r=>8},1)->rotate("wheel",[90,0,0]);
+
+The first parameter is the
 name of the element (the element must exist already).The second parameter is an arrayref of three rotations
 in degrees.
 =cut
@@ -158,10 +165,12 @@ in degrees.
 =head3 mirror
 
 Mirrors an element by name about a plane. That plane is defined by the normal to that vector, 
-and the plane goes through the origing.
-C<< $scad->cube([2,2,2])->mirror("cube",[1,0,0]); >>.  The first parameter is the
-name of the element (the element must exist already). The second parameter
-is an arrayref containg the planes normal e.g.[1,0,0] implies a miorroring about the X-axis.
+and the plane goes through the origin.
+
+    $scad->cube([2,2,2])->mirror("cube",[1,0,0]);
+    
+The first parameter is the name of the element (the element must exist already). The second parameter
+is an arrayref containg the planes normal e.g.[1,0,0] implies a mirroring about the X-axis.
 
 =cut
  
@@ -176,7 +185,10 @@ is an arrayref containg the planes normal e.g.[1,0,0] implies a miorroring about
 =head3 resize
 
 Resizes an element by name to specified dimensions in X,Y,Z directions.e.g.
-C<< $scad->cube("bodyTop",[30,20,10],1)->resize("bodyTop",[3,2,6]); >>.  The first parameter is the
+
+   $scad->cube("bodyTop",[30,20,10],1)->resize("bodyTop",[3,2,6]);
+
+The first parameter is the
 name of the element (the element must exist already).The second parameter is an arrayref of three
 scale factors. 
 =cut
@@ -191,8 +203,11 @@ scale factors.
 =head3 scale
 
 Scales an element by name by specified ratios in X,Y,Z directions.e.g.
-C<< $scad->cube("bodyTop",[30,20,10],1)->scale("bodyTop",[1,2,0.5]); >>.  The first parameter is the
-name of the element (the element must exist already).The second parameter is an arrayref of three scale factors. 
+
+   $scad->cube("bodyTop",[30,20,10],1)->scale("bodyTop",[1,2,0.5]);
+   
+The first parameter is the name of the element (the element must exist already).
+The second parameter is an arrayref of three scale factors. 
 =cut
   
   method scale{
@@ -216,6 +231,34 @@ with the 4th row always forced to [0,0,0,1].
       return $self;
 	  
   } 
+
+=head3 skew
+
+Uses MultiMatrix to transform a item by skewing in xy, yx, zy, yz, xz, zx  planes.
+this uses a matrix described in L<this gist|https://gist.github.com/boredzo/fde487c724a40a26fa9c>
+(see corrections). e.g.
+
+   $scad ->cube("box",[10,10,20])->skew("box",{xz=>-25});
+
+
+  
+=cut
+  
+
+   method skew{
+      my ($name,$dims)=@_;
+	  my $matrix=[
+		[ 1, $Math->tan($Math->deg2rad($dims->{xy}//0)), $Math->tan($Math->deg2rad($dims->{xz}//0)), 0 ],
+		[$Math->tan($Math->deg2rad($dims->{yx}//0)), 1, $Math->tan($Math->deg2rad($dims->{yz}//0)), 0 ],
+		[ $Math->tan($Math->deg2rad($dims->{zx}//0)), $Math->tan($Math->deg2rad($dims->{zy}//0)), 1, 0 ],
+		[ 0, 0, 0, 1 ]
+	];
+	   
+	$items->{$name}= "//skew\nmultmatrix(".$self->dimsToStr($matrix).")\n".$self->tabThis($items->{$name});
+    return $self;
+	   
+   }
+
 
 
 =head3 offset
@@ -545,7 +588,7 @@ the modules built and the libraries used
   }
 =head3 save
 
-Saves the .scad file, and also uses openscad to generate images or 3D objects
+saves the .scad file, and also uses openscad to generate images or 3D objects
 from the script, or open it in openSCAD directly after building the shape;
 C<< $scad->build("ext")->save("extrusion"); >> builds a scad file with the item "ext",
 then saves the scad file, and automatically opens OpenSCAD file.
