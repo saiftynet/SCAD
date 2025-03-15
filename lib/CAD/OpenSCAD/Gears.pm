@@ -2,6 +2,8 @@ use strict; use warnings;
 use lib "../../../lib";
 use Object::Pad;
 use CAD::OpenSCAD::Math;
+
+our $Version=0.1;
 	
 our $Math=new Math;
 		
@@ -36,11 +38,11 @@ class GearMaker{
 				push @$points, [$dx,$y];
 				unshift @$points, $Math->mirrorrotate([$dx,$y],($backlash/180+$pi)/$teeth);
 			}
-			last if sqrt($x**2+$y**2) > ($PCD/2+$Addendum);
+			last if $Math->distance([$x,$y]) > ($PCD/2+$Addendum);
 			push @$points,[$x,$y]; 
 			unshift @$points,$Math->mirrorrotate([$x,$y],($backlash/180+$pi)/$teeth);
 			#if the involute arcs are going to collide...remove point and leave 
-			if ($Math->angle($points->[-1],[1,0])>($pi/(2*$teeth))){
+			if ($Math->angle($points->[-1])>($pi/(2*$teeth))){
 				pop @$points;shift @$points;
 				last;
 			};
@@ -59,36 +61,116 @@ class GearMaker{
 		my ($name,%params)=@_;
 		my $profile=$self->profile(%params);
 		my $th=$params{thickness}//($params{module}//2)*2;
-		$scad->polygon("GearMaker_outline",$profile->{points})
-		       ->linear_extrude("GearMaker_gear","GearMaker_outline",$th);
-		if ($params{bore}){
-		   $scad->cylinder("GearMaker_bore",{r=>$params{bore}/2,h=>$th+2});
-		   if ($params{key}){  
-			   if (ref $params{key} eq "ARRAY"){
-				   
-			   }
-			   else{
-				   $scad->cube("GearMaker_key", [$params{bore},$params{bore},$th+3])
-						  ->translate("GearMaker_key",[$params{bore}/4,-$params{bore}/2,-.5])
-				          ->difference("GearMaker_bore","GearMaker_bore","GearMaker_key");
-			   }
-		   }
-		    $scad->translate("GearMaker_bore",[0,0,-1])
-		         ->union("GearMaker_gear","GearMaker_gear","GearMaker_bore");
+		if ($params{type} and $params{type} !~ /spur/i){
+			if ($params{type} =~ /bevel/i){
+				my $bA=$params{bevelAngle}//45;
+				my $scale=($profile->{PCD}-$th*$Math->tan($bA))/$profile->{PCD};
+				$scad->polygon("GearMaker_outline",$profile->{points})
+				     ->linear_extrude("GearMaker_gear","GearMaker_outline","$th, scale=$scale");
+			}
+			elsif($params{type} =~ /hrringbone|doublehelix/i){
+				my $hA=$params{helixAngle}//10;
+				my $hB=-$hA;
+		        $scad->polygon("GearMaker_outline",$profile->{points})
+		             ->linear_extrude("GearMaker_geara","GearMaker_outline","$th/2, twist=$hA")
+		             ->linear_extrude("GearMaker_gearb","GearMaker_outline","$th/2, twist=$hB")
+		             ->rotate("GearMaker_gearb",[0,0,$hB])
+		             ->translate("GearMaker_gearb",[0,0,$th/2])
+		             ->union(qw/GearMaker_gear GearMaker_geara GearMaker_gearb/);
+			}
+			elsif($params{type} =~ /helix/i){
+		        my $hA=$params{helixAngle}//10;
+		        $scad->polygon("GearMaker_outline",$profile->{points})
+		             ->linear_extrude("GearMaker_gear","GearMaker_outline","$th, twist=$hA");
+			}
+		}
+		else {
+		   $scad->polygon("GearMaker_outline",$profile->{points})
+		        ->linear_extrude("GearMaker_gear","GearMaker_outline",$th);
 		}
 		$scad->clone("GearMaker_gear",$name)
 		     ->cleanUp(qr{^GearMaker_});
+		     
+		if ($params{bore}){
+			$self->bore($name,%params);
+		}  
+		
+		return $self;
 	}
 	
-	method bevelGear{
+	method bore{  # pass a gear and create a bore, optionally keyed
 		my ($name,%params)=@_;
-		my $profile=$self->profile(%params);
-		my $th=$params{thickness}//($params{module}//2)*2;
-		my $bA=$params{bevelAngle}//45;
-		my $scale=($profile->{PCD}-$th*$Math->tan($bA))/$profile->{PCD};
-		$scad->polygon("GearMaker_outline",$profile->{points})
-		       ->linear_extrude("GearMaker_gear","GearMaker_outline","$th, scale=$scale");
-		$scad->clone("GearMaker_gear",$name)
+		my $d=$params{bore}//5;
+		my $h=$params{thickness}//5;
+		$scad->cylinder("GearMaker_bore",{r=>$d/2,h=>$h+2})
+		     ->translate("GearMaker_bore",[0,0,-1]);
+		if ($params{key}){
+			$scad->cube("GearMaker_key",[$d,$d,$h+4]) 
+			     ->translate("GearMaker_key",[$d/4,-$d/2,-2])
+			     ->difference("GearMaker_bore","GearMaker_bore","GearMaker_key")
+		}
+		 $scad->difference($name,$name,"GearMaker_bore")
+		      ->cleanUp(qr{^GearMaker_});
+		     
+		
+	}
+	
+	
+	# https://drivetrainhub.com/notebooks/gears/tooling/Chapter%201%20-%20Basic%20Rack.html
+	method rack{
+		my ($name,%params)=@_;
+		my $pi=$Math->pi;
+		my $module=$params{module}//2;  #  Module
+		my $teeth=$params{teeth}//20;
+		my $rackWidth=$params{width}//10;
+		my $rackDepth=$params{depth}//3;
+		my $backlash=$params{backlash}//20;# profile shift degrees
+		my $PressAngle=$params{pressure_angle}//20;
+		
+		my $pitch=$pi*$module;
+		my $Addendum=$module;
+		my $Dedendum=$Addendum*1.25;
+		my $toothHeight=$Addendum+$Dedendum;
+		my $tipWidth=$pitch/2-(2*$Addendum*$Math->tan($Math->deg2rad($PressAngle)));
+		my $baseWidth=(2*$toothHeight*$Math->tan($Math->deg2rad($PressAngle)))+$tipWidth;
+		my $scale=$tipWidth/$baseWidth;
+		
+		
+		my $delta1=$toothHeight*($Math->tan($Math->deg2rad($PressAngle)));
+		my $points=[[0,0]];
+		foreach my $tooth(0..$teeth-1){
+			push @$points,([$tooth*$pitch,$rackDepth],
+			[$tooth*$pitch+$delta1,$rackDepth+$toothHeight],
+			[$tooth*$pitch+$delta1+$tipWidth,$rackDepth+$toothHeight],
+			[$tooth*$pitch+2*$delta1+$tipWidth,$rackDepth]);
+		}
+		push @$points,[($teeth-1)*$pitch+2*$delta1+$tipWidth,0];
+		$scad->polygon("GearMaker_rackprofile",$points)
+		     ->linear_extrude("GearMaker_rack","GearMaker_rackprofile",$rackWidth);
+		if ($params{type} and $params{type} !~ /standard/i){
+			if($params{type} =~ /herringbone|doublehelix/i){
+		        my $hA=$params{helixAngle}//-25;
+		        my $hB=-$hA;
+				$scad->linear_extrude("GearMaker_rack1","GearMaker_rackprofile",$rackWidth/2+0.001)
+				     ->skew("GearMaker_rack1",{xz=>$hA})
+				     ->clone("GearMaker_rack1","GearMaker_rack2")
+				     ->mirror("GearMaker_rack2",[0,0,1])
+				     ->translate("GearMaker_rack2",[0,0,$rackWidth])
+				     ->union("GearMaker_rack","GearMaker_rack1","GearMaker_rack2");
+
+			}
+			elsif($params{type} =~ /helix/i){
+		        my $hA=$params{helixAngle}//-25;
+				$scad->linear_extrude("GearMaker_rack","GearMaker_rackprofile",$rackWidth)
+				     ->skew("GearMaker_rack",{xz=>$hA});
+			}
+		}
+		else{
+			$scad->linear_extrude("GearMaker_rack","GearMaker_rackprofile",$rackWidth);
+		}     
+		$scad->clone("GearMaker_rack",$name)
 		     ->cleanUp(qr{^GearMaker_});
+		
+		
 	}
 }
