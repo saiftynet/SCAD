@@ -17,6 +17,12 @@ pieChart($EnergyUtilisation)
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/pichart.png?raw=true)
 
 
+### [surfaceplot.pl](https://github.com/saiftynet/SCAD/blob/main/Examples/surfacePlot.pl)
+
+![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/surfaceplot.png?raw=true)
+
+
+
 ### [circletext.pl](https://github.com/saiftynet/SCAD/blob/main/Examples/circletext.pl)
 
 Subroutine to create text in a circle
