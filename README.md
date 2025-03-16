@@ -140,9 +140,26 @@ Rotates an element by name around in  X,Y,Z axes.e.g.
 name of the element (the element must exist already).The second parameter is an arrayref of three rotations
 in degrees.
 
-* `hull`
+* `hull` *new element created*
 
-Displays the convex hull of child nodes.
+Generates the convex hull of child nodes. Effectively lofts between two (or more) objects.  The example below
+draws randomly placed cubes and then draws a hull connecting them between consecutive pairs of cubes.  The first parameter
+is the name of the new element created, the second parameter refers to the item that all other elements are subtracted from.
+
+```
+	my $chart=new SCAD;
+	my $pos=[0,0,0]; my @cubes=(); my @hulls=();
+	for (0..100){   # a hundred randomly displaced cubes
+		$chart->cube("dot$_",3)->translate("dot$_",$pos);
+		$pos=[$pos->[0]+((-20..20)[rand()*40]),$pos->[1]+((-20..20)[rand()*40]),$pos->[2]+((-20..20)[rand()*40])];
+		push @cubes,"dot$_";
+	}   
+	for (0..100){  # hulls between sequential pairs 
+		$chart->hull("hull$_",$cubes[$_],$cubes[$_-1]);
+		push @hulls,"hull$_";
+	}   
+		 $chart->build(@hulls)->save("hull");
+```
 
 * `offset`
 
