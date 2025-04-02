@@ -345,6 +345,10 @@ can allow the generation multiple scenes/structures separately quickly to be lat
 
 =back
 
+=head1 INSTALLATION
+
+   cpanm CAD-OpenSCAD-<version>.tar.gz
+
 =head1 AUTHOR
 
 SAIFTYNET
