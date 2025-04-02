@@ -59,7 +59,7 @@ $scad->polygon("outline",$gear->{points})
 
 ### [Loft](https://github.com/saiftynet/SCAD/blob/main/Examples/loft.pl) 
 
-An extra module Loft.pm allows the creation of lofts betweeen two faces.  This can be used to create complex polyhgedrons, resulting in an object that renders much quicker than hull.
+An extra module Loft.pm allows the creation of lofts betweeen two faces.  This can be used to create complex polyhedrons, resulting in an object that renders much quicker than hull.
 
 
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/helix.png?raw=true)
