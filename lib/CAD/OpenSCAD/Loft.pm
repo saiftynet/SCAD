@@ -1,6 +1,8 @@
 use strict;use warnings;
 use lib "../../../lib";
 
+package CAD::OpenSCAD::Loft; #  this is just so that it is picked up by the CPAN indexer
+
 use Object::Pad;
 use CAD::OpenSCAD::Math;
 
