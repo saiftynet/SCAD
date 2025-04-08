@@ -144,7 +144,7 @@ in degrees.
 
 Generates the convex hull of child nodes. Effectively lofts between two (or more) objects.  The example below
 draws randomly placed cubes and then draws a hull connecting them between consecutive pairs of cubes.  The first parameter
-is the name of the new element created, the second parameter refers to the item that all other elements are subtracted from.
+is the name of the new element created, the rest are items that are enveloped by the convex hull.
 
 
 	my $chart=new SCAD;
