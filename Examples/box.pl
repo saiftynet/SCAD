@@ -9,7 +9,7 @@ foldableBox(50,30,20,2,.5);
 
 sub foldableBox{
 	my ($width,$depth,$height,$thickness,$creaseHeight)=@_;
-	my $scad=new SCAD;
+	my $scad=new OpenSCAD;
 	
 	# create a polygon that represent the ouline of the box folds
 	# extrude it to the thickness of the walls
