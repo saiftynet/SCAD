@@ -2,7 +2,7 @@
 use lib "../lib";
 use CAD::OpenSCAD;
 
-my $scad=new SCAD;	
+my $scad=new OpenSCAD;	
 my $gear=gear(teeth=>18,module=>3,pressure_angle=>28);
 my $gear2=gear(teeth=>10,module=>3,pressure_angle=>28);
 my $gear3=gear(teeth=>24,module=>3,pressure_angle=>28);
