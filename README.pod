@@ -9,7 +9,9 @@ CAD::OpenSCAD - A module to gnerate OpenSCAD files that can be used to create 3D
 A simple SCAD Generator, allowing programmable 3D design from Perl.  This tool allows easy generation of
 OpenSCAD scripts that can be used to generate 3D Objects, in a fairly Perlish way. It is currently working
 its way through the tutorial and will hopefully have an incremental features that allow complex models to
-be generated and produce files that can fed into a 3D printer.  
+be generated and produce files that can fed into a 3D printer.  *** NOTE API changed, the class was called
+SCAD, but is nw renamesd to openSCAD for consistency with the module's file name and the library it depends
+on.
 
 =head1 DEPENDENCIES
 
