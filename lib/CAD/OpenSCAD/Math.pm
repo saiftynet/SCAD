@@ -1,13 +1,11 @@
 use strict; use warnings;
 use lib "../../lib";
 
-package CAD::OpenSCAD::Math; #  this is just so that it is picked up by the CPAN indexer
-
 use Object::Pad;
 
-our $VERSION='0.10';
+our $VERSION='0.14';
 
-class Math{
+class CAD::OpenSCAD::Math{
 	field $pi  :reader;
 	field $e   :reader;
 	
@@ -15,13 +13,13 @@ class Math{
 		$pi=4*atan2(1,1);
 		$e= exp(1);
 	}
-	method mirrorrotate{
+	method mirrorrotate{ # 2d rotate and mirror 
 		my ($point,$angle)=@_;
 		return [$point->[0]*cos($angle)+$point->[1]*sin($angle),
 			   -$point->[1]*cos($angle)+$point->[0]*sin($angle)];
 	}
-	
-	method rotate{ # rotate point or set of points 
+	 
+	method rotate{# rotate point or set of points 2d rotate with angle or 3d rotate with 3 rotations
 		my ($point,$angle)=@_;
 		if (ref $point->[0] ne "ARRAY"){
 			if (scalar @$point ==2){  # 2d rotations
@@ -44,6 +42,17 @@ class Math{
 		}
 	}		
 	
+
+	method rotx{
+		my ($point,$angle)=@_;
+		my $matrix=[
+		             [1,0,0],
+		             [0,cos($angle),-sin($angle)],
+		             [0,sin($angle),cos($angle)],
+		           ];
+		return $self->matrixTransform($point,$matrix);
+		
+	}
 	
 	method roty{
 		my ($point,$angle)=@_;
@@ -93,7 +102,7 @@ class Math{
 		
 	method add{ # add vectors
 		my ($point1,$point2)=@_;
-		if((scalar @$point1 == scalar @$point2) && (! ref $point1->[0])){;
+		if((scalar @$point1 == scalar @$point2) && (! ref $point1->[0])){
 		      return [map{$point1->[$_]+$point2->[$_]} (0..$#$point1)]
 		 }
 		 elsif (ref $point1->[0] eq "ARRAY"){
@@ -103,7 +112,8 @@ class Math{
 			 }
 			 return $tmp;
 				
-		};
+		}
+		else {die "Math->add failed"};
 	}
 		
 	
@@ -129,29 +139,94 @@ class Math{
 	# if only one point passed, distance between point and origin
 	method distance{
 		my ($p1,$p2)=@_;	
-		$p2=[0,0] unless $p2;	
-		return sqrt(($p1->[0]-$p2->[0])**2+($p1->[1]-$p2->[1])**2);
+		$p2=[(0)x@$p1] unless $p2;	
+		my $sum=0;
+		for(0..$#$p1){$sum+=($p1->[$_]-$p2->[$_])**2};
+		return sqrt($sum);
 	}
 	
-	method tan{
+	method dot{ # dot product of two points
+		my ($p1,$p2)=@_;	
+		die "Points not same dimensions in Math->dot product\n" if @$p1 !=  @$p2 ;
+		my $sum=0;
+		for(0..$#$p1){$sum+=$p1->[$_]*$p2->[$_]};
+		return $sum;
+		
+	}
+	
+	method cross{# cross product of two 3d points
+		my ($p1,$p2)=@_;	
+		die "Point(s) not 3d in Math->cross product\n" if((@$p1 !=  @$p2) &&( @$p1 !=3));
+		return [$p1->[1]*$p2->[2]-$p1->[2]* $p2->[1],
+		        $p1->[2]*$p2->[2]-$p1->[2]* $p2->[0],
+		        $p1->[0]*$p2->[1]-$p1->[1]* $p2->[0]]
+	}
+	
+	method unit{# unit vector
+		my ($p1)=@_;
+		my $mag=$self->distance($p1);
+		return [map{$p1->[$_]/$mag} 0..$#$p1] ;
+	}
+		
+	method tan{  # tangent of an angle 
 		my ($ang)=@_;
 		return sin($ang)/cos($ang);
-		
 	}
 	
-		
-	method serialise{
+	method serialise{ # simple serialiser
 		my $st=shift;
 		if (ref $st eq "ARRAY"){
-			return "[".join(",",map{serialise($_)}@$st)."]"
+			return "[".join(",",map{$self->serialise($_)}@$st)."]"
 		}
 		elsif (ref $st eq "HASH"){
-			return "{".join(",",map{$_."=>".serialise($st->{$_})}keys %$st)."}"
+			return "{".join(",",map{$_."=>".$self->serialise($st->{$_})}keys %$st)."}"
 		}
 		else{
 			return $st=~/^[\d+-\.]/?$st:"\"$st\"";
 		};
 	}
 	
+	method equal{  # test equality between 2 vectors
+		my ($p1,$p2)=@_;	
+		if (! ref $p1){
+			return $p1==$p2?1:0};
+		die "Points not same dimensions in Math->equal\n" if @$p1 !=  @$p2 ;
+		for(0..$#$p1){return 0 unless $self->equal($$p1[$_],$$p2[$_])};
+		return 1;
+	}
+	
+	method closest{
+		my ($pt,$ptArray)=@_;	
+		my $closest={};my $index=0;
+		foreach my $tst (@$ptArray){
+			if (!$closest->{mag}||($self->distance($pt,$tst)<$closest->{mag})){
+				$closest={mag=>$self->distance($pt,$tst),index=>$index,point=>$tst}   
+			}
+		}
+		return $closest;
+	}
+	
+	method meanPoint{
+		my ($ptArray)=@_;	
+		my $sums=[(0)x@{$ptArray->[0]}];
+		$sums=$self->add($sums,$_) foreach @$ptArray;
+		$sums->[$_]=$sums->[$_]/@$ptArray foreach (0..$#$sums);
+		return $sums;
+	}
+	
+	method type{
+		my $v=shift;
+		if (ref $v eq "ARRAY"){
+			if (ref $v->[0]  eq "ARRAY"){
+				return "LIST of VECTORS";
+			}
+			elsif (ref $v->[0]  eq "HASH"){
+				return "LIST of HASHES";
+			}
+			else {
+				return "VECTOR";
+			}
+		}
+	}
 	
 }
