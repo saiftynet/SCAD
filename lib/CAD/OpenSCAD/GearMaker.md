@@ -1,4 +1,4 @@
-# CAD::OpenSCAD::Gears
+# CAD::OpenSCAD::Gearmaker
 
 A Perl module to create gears.  Initial attempts were [long winded]().
 A Gears.pm module was created to allow multiple different types of gears to be created
@@ -12,7 +12,7 @@ A Gears.pm module was created to allow multiple different types of gears to be c
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/gears.gif?raw=true)
 
 ```
-my $scad=new SCAD;
+my $scad=new OpenSCAD;
 my $gm=new GearMaker(scad=>$scad);
 $gm->gear("Gear1",module=>3,teeth=>14, type=>"bevel", backlash=>50);
 $gm->gear("Gear2",module=>3,teeth=>18, type=>"bevel", backlash=>50);
@@ -22,7 +22,7 @@ $gm->gear("Gear2",module=>3,teeth=>18, type=>"bevel", backlash=>50);
 
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/bihelical.gif?raw=true)
 ```
-my $scad=new SCAD;
+my $scad=new OpenSCAD;
 my $gm=new GearMaker(scad=>$scad);
 $gm->gear("Gear1",module=>3,teeth=>14, backlash=>50, type=>"doublehelix", helixAngle=>5, thickness=>10,key=>1);
 $gm->gear("Gear2",module=>3,teeth=>18, helixAngle=>-5,type=>"doublehelix",backlash=>50, thickness=>10);
