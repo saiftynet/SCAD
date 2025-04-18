@@ -11,7 +11,7 @@ sub circleText{
 	$params{height}//=3;
 	$params{radius}//=(length $params{text})*$params{size}/6;
 	my $index=0;
-	my $output=new SCAD;
+	my $output=new OpenSCAD;
 	my @labels=();
 	for (reverse split //,$params{text}){
 		my $label="char$index";
