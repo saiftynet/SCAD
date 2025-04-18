@@ -10,7 +10,7 @@ sub pieChart{
 	my $total=0;
     my $pecentages={};
     my @colours=(qw/red orange yellow green blue indigo violet/);
-    my $chart=new SCAD;
+    my $chart=new OpenSCAD;
     $chart->square("profile", [20,5],1);
 
     $total+=$data->{$_} foreach(keys %$data);
