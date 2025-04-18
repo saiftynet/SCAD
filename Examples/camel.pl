@@ -3,7 +3,7 @@ use strict;use warnings;
 use lib "lib";
 use CAD::OpenSCAD;
 
-my $camel=new SCAD;
+my $camel=new OpenSCAD;
 
 $camel->sphere("thorax", 40)->resize("thorax",[40,30,40])->translate("thorax",[0,0,10]);
 $camel->cylinder("trunk",{h=>40,r1=>40,r2=>20})
