@@ -1,5 +1,13 @@
 ## Changes
 
+### Version 0.14
+* Lofta llows loft between faces with different numbers of points
+* Loft adds spheroid() and conoid()
+* Maths adds equal(), closest(), meanPoint() and others
+
+### Version 0.10...0.13
+* Various failed attempts to get the Module to be indexed in MetaCPAN
+
 ### Version 0.08
 * Documentation changes
 * added a multimatrix method `skew`
