@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-CAD::OpenSCAD - A module to gnerate OpenSCAD files that can be used to create 3D structures using perl
+CAD::OpenSCAD - A module to generate OpenSCAD files that can be used to create 3D structures using perl
 
 =head1 DESCRIPTION
 
