@@ -27,7 +27,7 @@ be generated and produce files that can fed into a 3D printer.
   use lib "lib";
   use CAD::OpenSCAD;
 
-  my $car=new SCAD;
+  my $car=new OpenSCAD;
   $car->cube("bodyBase",[60,20,10],1)
       ->cube("bodyTop",[30,20,10],1)
       ->translate("bodyTop",[0,0,5])
@@ -67,7 +67,7 @@ and even L<animations|https://github.com/saiftynet/SCAD/tree/main/Examples#anima
 
   use lib "lib";
   use CAD::OpenSCAD;
-  my $scad=new SCAD;
+  my $scad=new OpenSCAD;
   # optionally can add fs, fa and tab on intialisation
   # e.g my $scad=new SCAD(fs=>1, fa=>0.4, tab=>0);
   
@@ -232,7 +232,7 @@ using SCAD variables.  A simple solution making a filled line chart is shown bel
   # add end corner
   push @$points, [$separation*(--$count),$start->[1]];
 
-  my $chart=new SCAD;	
+  my $chart=new OpenSCAD;	
   $chart->polygon("chart",$points)
       ->build("chart")->save("filledline");
 
@@ -247,7 +247,7 @@ using SCAD variables.  A simple solution making a filled line chart is shown bel
   
 A method to extrude a 2D shape.  creates a new 3D objects from a 2d shape *: API CHANGED: method creates new item now*
   
-  my $extrusion=new SCAD;
+  my $extrusion=new OpenSCAD;
   $extrusion->variable({p0=>[0, 0],p1 => [0, -30],p2 => [15, 30],p3=> [35, 20],p4 => [35, 0]});
   $extrusion->variable("points",[qw/p0 p1 p2 p3 p4 /] );
   $extrusion->polygon("poly","points");
@@ -257,7 +257,7 @@ A method to extrude a 2D shape.  creates a new 3D objects from a 2d shape *: API
 =item * C<rotate_extrude> **new element created**
 A method to extrude a 2D shape while rotating invokes similar to liner_extrude *: API CHANGED: method creates new item now*
 
-  my $extrusion=new SCAD;
+  my $extrusion=new OpenSCAD;
   $extrusion->circle("circle",{r=>5})
           ->translate("circle",[10,0,0])
           ->rotate_extrude("extrudedCircle","circle",{angle=>180})
