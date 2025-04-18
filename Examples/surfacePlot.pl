@@ -17,7 +17,7 @@ sub function{
 
 sub surfacePlot{
 	my ($minX,$minY,$maxX,$maxY,$spacing,$pixel,$funct)=@_;
-	my $chart=new SCAD;
+	my $chart=new OpenSCAD;
 	my ($col,$row)=(0,0);
 	for(my $x=$minX;$x<$maxX;$x+=$spacing){
 		for(my $y=$minY;$y<$maxY;$y+=$spacing){
