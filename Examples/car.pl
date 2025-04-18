@@ -2,7 +2,7 @@
 use lib "lib";
 use CAD::OpenSCAD;
 
-my $car=new SCAD;
+my $car=new OpenSCAD;
 
 # creates a car body shape using two cubes, groups them and colours the group
 $car->cube("bodyBase",[60,20,10],1)
