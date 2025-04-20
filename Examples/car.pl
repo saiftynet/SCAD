@@ -1,5 +1,5 @@
 #!/usr/env perl
-use lib "lib";
+use lib "../lib";
 use CAD::OpenSCAD;
 
 my $car=new OpenSCAD;
