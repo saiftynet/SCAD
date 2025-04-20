@@ -1,6 +1,6 @@
 #!/usr/env perl
 use strict;use warnings;
-use lib "lib";
+use lib "../lib";
 use CAD::OpenSCAD;
 
 my $camel=new OpenSCAD;
