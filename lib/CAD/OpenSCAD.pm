@@ -1,6 +1,3 @@
-# NAME: CAD-OpenSCAD
-# ABSTRACT: Module to generate OpenSCAD files using Perl
-
 use strict; use warnings;
 use lib "../";
 
@@ -9,13 +6,13 @@ use CAD::OpenSCAD::Math;
 
 our $Math=new CAD::OpenSCAD::Math;
 
-our $VERSION='0.14';
+our $VERSION='0.16';
 
 =pod
 
 =head1 NAME
 
-CAD::OpenSCAD
+CAD::OpenSCAD - A module to generate OpenSCAD files for 3D Object creation in Perl
 
 =head2 SYNOPSIS
 
@@ -570,9 +567,16 @@ This just copies the code for the element into new elements, for subsequent tran
   }
 
   
-  method list{ # remove items with certain patterns
+  method list{ # list items with certain patterns
 	   print $_,"\n" foreach (keys %$items);
 	   return $self;
+  }
+  
+  method item{
+	  my $sI=shift;
+	  return $items->{$sI} unless(ref $sI);
+	  $items->{$sI->name}=$sI;
+	  return $self;
   }
     
 
@@ -645,7 +649,12 @@ the modules built and the libraries used
 	  $script.=$modules->{$_}  foreach (keys %$modules);
 	  foreach (@_){
 		  if ($items->{$_}){# add items if they exist
-			  $script.=$items->{$_}  ;
+			  if (ref $items->{$_}){
+				 $script.=$items->{$_}->script();			  
+			  }
+			  else{
+				  $script.=$items->{$_}  ;
+			  }
 		  } 
 		  else {
 			  warn "$_ does not exist to build"
@@ -665,6 +674,7 @@ then saves the scad file, and automatically opens OpenSCAD file.
 if another parameter passed, the generates a corresponding file, from one of
 (stl|png|t|off|wrl|amf|3mf|csg|dxf|svg|pdf|png|echo|ast|term|nef3|nefdbg)
 e.g. C<< $scad->save("extrusion","png") >>
+
 =cut
 
   method save{  #
@@ -739,15 +749,120 @@ e.g. C<< $scad->save("extrusion","png") >>
 
 }
 
+=head3 scadItem
+
+This is class for future use to allow an item in OpenSCAD to know its
+dimensions vertexes, faces and orientations.  For now it works with
+polyhedrons to allow distortions.  It is possible that many OpenSCAD
+primitivs will be convertable to scadItem polyhedra to allow such
+manipulations.  It is inserted as C<< $scad->items->{"item_name"} >>, and
+during the  C<< $scad->build("item_name") >> the script is gnerated by 
+the C<script> method below.
+
+=cut
+
+
+
 class scadItem{
-   field $name            :reader :param  ;
-   field $description     :reader :writer :param  //="";
-   field $script          :reader :param  //="";
-   field $nDim            :reader         //="3";         # number of dimensions
-   field $insPoint        :reader :writer :param //=[0,0];
-   field $axis            :reader :writer :param //=[1,1,1];
-   field $vertices  = [];
-   field $faces  = [];
+   field $name            :reader :param;               # the name to allow indexing of the item
+   field $description     :reader :writer :param  //="";# optional description
+   field $function        :reader :param ;              # function to generate the scad item
+   field $args            :reader :param ;
+   
+   field $nDim            :reader         //="3";            # number of dimensions
+   field $insPoint        :reader :writer :param //=[0,0];   # translation from original
+   field $axis            :reader :writer :param //=[0,0,0]; # rotation from original
+
+
+      
+   method script{
+	   my $buildParams="";
+	   foreach (keys %$args){
+		   $buildParams.="$_=".$Math->serialise($args->{$_}).",\n"
+	   }
+	   substr($buildParams,-2)="";
+	   return "\/\/$name\n$function($buildParams);\n"
+   }
+   
+   method point{
+	   die "No points in Item:$name\n"  && return  unless $args->{points};
+	   my ($index,$newPoint) =@_;
+	   if ($newPoint){
+		   $args->{points}->[$index]=$newPoint;
+		   return;
+	   }
+	   return $args->{points}->[$index]
+   }
+   
+   method scale{
+	   die "No points in Item:$name\n"  && return  unless $args->{points};
+	   my ($index,$dent) =@_;
+	   $index=[$index] unless (ref $index eq "ARRAY");
+	   foreach my $ind (@$index){
+	     for (0..2){
+		   $args->{points}->[$ind]->[$_]*=$dent->[$_]
+	     }
+	   }
+   }
+   
+   method skew{
+	   die "No points in Item:$name\n"  && return  unless $args->{points};
+	   my ($index,$dent) =@_;
+	   $index=[$index] unless (ref $index eq "ARRAY");
+	   foreach my $ind (@$index){
+	     for (0..2){
+		   $args->{points}->[$ind]->[$_]+=$dent->[$_]
+	     }
+	   }
+   } 
+   
+   method adjacent{
+	   my $index=shift;
+	   my $facets=[];my $inds=[];my $count=0;
+	   foreach my $face (@{$args->{faces}}){
+		   foreach my $ptI(@$face){
+			   if ($index==$ptI){
+				   push @$facets,$face;
+				   push @$inds,$count;
+				   next;
+			   }
+		   }
+		   $count++;
+	   }
+	   
+	   return {facets=>$facets,indices=>$inds};
+   }
+   
+   method remove{
+	   my $pt=shift;
+	   if (ref $pt eq "ARRAY"){
+		   $self->remove($_) foreach @$pt;
+	   }
+	   my $adj=$self->adjacent($pt);
+	   my ($facets,$indices)=($adj->{facets},$adj->{indices});
+	   return unless (@$facets);
+	   foreach (@$facets){
+		   push @$_, shift @$_ while ($_->[0] !=$pt);
+		   shift  @$_;
+	   }
+	   my @newFace=();
+	   while (1){
+			push @newFace,@{$facets->[0]};
+			shift @$facets;
+			last unless @$facets;
+			while ($facets->[0]->[0] !=$newFace[-1]){
+				push @$facets, shift @$facets;
+			}
+			pop @newFace;
+		}
+		pop @newFace;
+		foreach (reverse sort { $a <=> $b } @$indices){
+			splice (@{$self->args->{faces}},$_,1);
+		}
+		splice (@{$self->args->{faces}},$indices->[0], 0, [@newFace]);
+		return {newFace=>[@newFace],index=>$indices->[0]}
+   }     
+   
 }
 
 =head2 SUPPORT
