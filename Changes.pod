@@ -1,0 +1,117 @@
+=pod
+
+=head2 Changes
+
+=head3 Version 0.15
+
+=over
+
+=item * class scadItem is added that allows the creation of of polyhedra that
+can be deformed to create complex shapes
+
+=item * multiple polyhedron manipulation tools are being developed
+
+=back
+ 
+=head3 Version 0.14
+
+=over
+
+=item * Loft allows loft between faces with different numbers of points
+
+=item * Loft adds spheroid() and conoid()
+
+=item * Maths adds equal(), closest(), meanPoint() and others
+
+=back
+ 
+=head3 Version 0.10...0.13
+
+=over
+
+=item * Various failed attempts to get the Module to be indexed in MetaCPAN
+
+=back
+ 
+=head3 Version 0.08
+
+=over
+
+=item * Documentation changes
+
+=item * added a multimatrix method `skew`
+
+=item * Enhanced Gears.pm to allow creation of involute helix gears, bevel gears, bihelical gears and racks
+
+=back
+ 
+=head3 Version 0.07
+
+=over
+
+=item * Added text() method
+
+=item * Developed a protype API for perl modules to extend CAD::OpenSCAD
+
+=item * Converted one of the examples into a module Gears.pm
+
+=item * Added Math.pm for some 3D manipulations
+
+=back
+ 
+=head3 Version 0.06 
+
+=over
+
+=item * Modified linear_extrude and rotate_extrude to create new object labels (rather than reuse the 2d objects label)
+
+=item * commented labels inserted
+
+=item * Examples folder for demoing new features as they appear
+
+=back
+
+=head3 Version 0.05
+
+=over
+
+=item * experimental modules
+
+=back
+
+=head3 Version 0.04 
+
+=over
+
+=item * blog uploaded
+
+=back
+
+=head3 Version 0.03 
+
+=over
+
+=item * 2d objects circle and square and polygo.
+
+=item * extrusion methods added
+
+=item * camel example
+
+=back
+
+=head3 Version 0.02 
+
+=over
+
+=item * OpenSCAD tutorial car can now be created
+
+=back
+
+=head3 Version 0.01 
+
+=over
+
+=item * First prototype
+
+=back
+=cut
