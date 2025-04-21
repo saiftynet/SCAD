@@ -3,7 +3,15 @@ use lib "../../lib";
 
 use Object::Pad;
 
-our $VERSION='0.14';
+our $VERSION='0.16';
+
+=pod
+
+=head1 NAME
+
+CAD::OpenSCAD::Math - A module provide mathematic routines for CAD::OpenSCAD and others
+
+=cut
 
 class CAD::OpenSCAD::Math{
 	field $pi  :reader;

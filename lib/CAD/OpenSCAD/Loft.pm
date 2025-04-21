@@ -4,9 +4,18 @@ use lib "../../../lib";
 use Object::Pad;
 use CAD::OpenSCAD::Math;
 
-our $VERSION='0.14';
+our $VERSION='0.16';
 
 our $Math=new CAD::OpenSCAD::Math;
+
+=pod
+
+=head1 NAME
+
+CAD::OpenSCAD::Loft - A module to generate lofted shapes for CAD::OpenSCAD
+
+=cut
+
 
 class CAD::OpenSCAD::Loft{
 	field $scad :param;	
@@ -17,7 +26,7 @@ class CAD::OpenSCAD::Loft{
 		my $faces=[[reverse(0..$#$face1)],@{$self->loftShell($face1,$face2)},[$#$face1+1..$#$face1*2+1]];
 		if ($name){
 			$scad->polyhedron($name,{points=>$pts,faces=>$faces});
-			return $scad
+			return $scad;
 		}
 		return {points=>$pts,faces=>$faces}
 	}
@@ -49,6 +58,7 @@ class CAD::OpenSCAD::Loft{
 		push @$faces,[$#$faces..$#$faces+scalar @$face1];
 		if ($name){
 			$scad->polyhedron($name,{points=>$points,faces=>$faces});
+			return $scad;
 		}
 		return {points=>$points,faces=>$faces}
 	}	
@@ -178,7 +188,11 @@ class CAD::OpenSCAD::Loft{
 	  }
 	  push @$faces,([0,$#$profile+2,1],[reverse(1..$sides+1)]);
 	  $faces=$self->reverseFaces($faces) if $apex->[2]<0;
-	  $scad->polyhedron($name,{points=>$pts,faces=>$faces});
+	  if ($name){
+			$scad->polyhedron($name,{points=>$pts,faces=>$faces});
+			return $scad;
+		}
+		return {points=>$pts,faces=>$faces}
    }
    
    method reverseFaces{
@@ -214,6 +228,7 @@ class CAD::OpenSCAD::Loft{
 		push @$faces,[$#$faces..$#$faces+scalar @$face1];
 		if ($name){
 			$scad->polyhedron($name,{points=>$points,faces=>$faces});
+			return $scad;
 		}
 		return {points=>$points,faces=>$faces}
 	}	

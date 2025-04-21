@@ -4,7 +4,15 @@ use lib "../../../lib";
 use Object::Pad;
 use CAD::OpenSCAD::Math;
 
-our $VERSION='0.14';
+=pod
+
+=head1 NAME
+
+CAD::OpenSCAD::Gearmaker - A module to generate gears for CAD::OpenSCAD
+
+=cut
+
+our $VERSION='0.16';
 	
 our $Math=new CAD::OpenSCAD::Math;
 		
