@@ -29,12 +29,48 @@ CAD::OpenSCAD - A module to generate OpenSCAD files for 3D Object creation in Pe
 
 *** B<From Version 0.14 the API change to make class the same name as module file
 means that the className is now OpenSCAD (was SCAD before> ***
-This module allows creation of OpenSCAD scripts for running through OpenSCAD,
-the "Programmers CAD Application". OpenSCAD can be scripted, having a
-fairly comprehensive language to create complex 3D objects.
-CAD::OpenSCAD allows generation and manipulation of 3D objects in a
-Perlish way,while relying on OpenSCAD to do all the hardwork, merely by
-generating SCAD scripts.
+CAD is not really something that has had significant recent Perl
+attention.  The OenSCAD framework allows the use of scripted generation
+and manipulation of 3D objects, and this module attempts to make this
+accessible in Perl. Object::Pad, a modern OOP paradigm, is used but
+deliberately not using its full features.  The OpenSCAD GUI can be
+used to display outputs, although  .STL, .PNG,and .SCAD files  (and
+others) may also be generated.  The example script L<car.pl|https://github.com/saiftynet/SCAD/blob/main/Examples/car.pl> 
+replicates one of the L<tutorial|https://en.wikibooks.org/wiki/OpenSCAD_Tutorial/Chapter_1>
+objects.  As you can see, the OpenSCAD object is returned after every
+operation, allowing daisy-chaining of operations.  The items within are
+named for easy identification and often appear in the .scad file
+generated as comments. These items can be collected, and built (to
+generate the OpenSCAD script), and potentially saved in various formats
+using OpenSCAD, or injected directly into the GUI tool for further 
+fine-tuning. (OpenSCAD is required to be installed for rendering)
+
+At this point the main goal is to have the ability to generate 3D
+objects within perl programs. With this tool one can use data acquired
+in perl programs to create 3D objects without having to know the OpenSCAD
+scripting language, although knowing this would allow fuller exploitation
+of the native OpenSCAD powers. One could use the output for
+
+=over
+
+=item * L<3D printing|https://github.com/saiftynet/SCAD/blob/main/Examples/box.pl>
+
+=item * L<charting|https://github.com/saiftynet/SCAD/tree/main/Examples#pichartpl>
+
+=item * L<graphical design|https://github.com/saiftynet/SCAD/tree/main/Examples#circletextpl>
+
+=item * L<mechanical design|https://github.com/saiftynet/SCAD/tree/main/Examples#gearpl>,
+
+=item * L<animations|https://github.com/saiftynet/SCAD/tree/main/Examples#animation-using-scad>
+
+=back
+
+=begin html
+
+<hr> <img src="https://github.com/saiftynet/dummyrepo/raw/main/SCAD/doublehelix%20rack%20and%20gear%20(1).gif?raw=true">
+
+=end html
+
 
 =head2 MAIN METHODS
 
@@ -68,6 +104,8 @@ class OpenSCAD{
    field $modules={};
    field $status :writer;
    field $extensions  ={};
+   
+   our $VERSION='0.16';
 
 =head4 set_fs set_fa set_tab set_vpt set_vpd set_vpf set_vp set_preview
 
@@ -363,7 +401,7 @@ The first parameter`"wheel"` in this example is the name of the new element crea
 the second parameter refers to the item that all other elements are subtracted from.
 If an element with the name of the first parameter does not exist, it is created,
 otherwise it is over-written. So this statement takes the item "wheel"
-(the scendond parameter), subtracts all the nuts, and overwrites the code
+(the second parameter), subtracts all the nuts, and overwrites the code
 in "wheel" (first parameter). 
 
 =cut    
@@ -772,7 +810,8 @@ class scadItem{
    field $nDim            :reader         //="3";            # number of dimensions
    field $insPoint        :reader :writer :param //=[0,0];   # translation from original
    field $axis            :reader :writer :param //=[0,0,0]; # rotation from original
-
+   
+   our $VERSION='0.16';
 
       
    method script{
@@ -784,6 +823,14 @@ class scadItem{
 	   return "\/\/$name\n$function($buildParams);\n"
    }
    
+=head4 C<scadItem::point()>
+
+gets or sets the point at a certain index position in  C<< <scadItem>->args->{points} >>
+e.g.  C<< <scadItem>->point($index) >> or  C<< <scadItem>->point($index,$newPoint) >>
+
+=cut   
+   
+   
    method point{
 	   die "No points in Item:$name\n"  && return  unless $args->{points};
 	   my ($index,$newPoint) =@_;
@@ -794,18 +841,32 @@ class scadItem{
 	   return $args->{points}->[$index]
    }
    
+=head4 C<scadItem::scale>
+
+scales the coordinates of a point or set of points (passed as index poitions)
+
+=cut   
+      
    method scale{
 	   die "No points in Item:$name\n"  && return  unless $args->{points};
 	   my ($index,$dent) =@_;
 	   $index=[$index] unless (ref $index eq "ARRAY");
 	   foreach my $ind (@$index){
+		   next unless  $args->{points}->[$ind];
 	     for (0..2){
 		   $args->{points}->[$ind]->[$_]*=$dent->[$_]
 	     }
 	   }
+	   return $self;
    }
    
-   method skew{
+=head4 C<scadItem::shear>
+
+translates the coordinates of a point or set of points (passed as index poitions)
+
+=cut   
+       
+   method shear{
 	   die "No points in Item:$name\n"  && return  unless $args->{points};
 	   my ($index,$dent) =@_;
 	   $index=[$index] unless (ref $index eq "ARRAY");
@@ -814,7 +875,14 @@ class scadItem{
 		   $args->{points}->[$ind]->[$_]+=$dent->[$_]
 	     }
 	   }
+	   return $self;
    } 
+   
+=head4 C<scadItem::adjacent()>
+
+retrieves a list of indices of a points with edges connecting a point 
+
+=cut
    
    method adjacent{
 	   my $index=shift;
@@ -833,14 +901,22 @@ class scadItem{
 	   return {facets=>$facets,indices=>$inds};
    }
    
+=head4 C<scadItem::remove>
+
+removes a point or a set of points from the faces (but not from the
+points list), and regenerates a new face to restore the object 
+
+=cut
+      
    method remove{
-	   my $pt=shift;
+	   my ($pt,$ret)=@_;
+	   $ret//={newFace=>[],index=>0};
 	   if (ref $pt eq "ARRAY"){
-		   $self->remove($_) foreach @$pt;
+		   $self->remove($_,$ret) foreach @$pt;
 	   }
 	   my $adj=$self->adjacent($pt);
 	   my ($facets,$indices)=($adj->{facets},$adj->{indices});
-	   return unless (@$facets);
+	   return $ret unless (@$facets);
 	   foreach (@$facets){
 		   push @$_, shift @$_ while ($_->[0] !=$pt);
 		   shift  @$_;
@@ -860,8 +936,10 @@ class scadItem{
 			splice (@{$self->args->{faces}},$_,1);
 		}
 		splice (@{$self->args->{faces}},$indices->[0], 0, [@newFace]);
-		return {newFace=>[@newFace],index=>$indices->[0]}
-   }     
+		$ret->{newFace}=[@newFace];
+		$ret->{index}=$indices->[0];
+		return $ret;
+   }    
    
 }
 
