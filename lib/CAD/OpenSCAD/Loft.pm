@@ -19,17 +19,28 @@ CAD::OpenSCAD::Loft - A module to generate lofted shapes for CAD::OpenSCAD
 
 class CAD::OpenSCAD::Loft{
 	field $scad :param;	
+	our $VERSION='0.16';
+	
+=head3 C<loftSolid>
+
+
+=cut	
 	
 	method loftSolid{
 		my ($name,$face1,$face2)=@_;
 		my $pts=[@$face1,@$face2];
-		my $faces=[[reverse(0..$#$face1)],@{$self->loftShell($face1,$face2)},[$#$face1+1..$#$face1*2+1]];
+		my $faces=[[reverse(0..$#$face1)],@{$self->loftShell($face1,$face2)},[$#$face1+1..$#$face1+$#$face2+1]];
 		if ($name){
 			$scad->polyhedron($name,{points=>$pts,faces=>$faces});
 			return $scad;
 		}
 		return {points=>$pts,faces=>$faces}
 	}
+
+=head3 C<helix>
+
+
+=cut	
 
 	method helix{
 		my $name=shift;
@@ -55,13 +66,22 @@ class CAD::OpenSCAD::Loft{
 			$face1=[@$face2];                                # last face becomes first for the next loft;
 			$index+=scalar @$face1;
 		}
-		push @$faces,[$#$faces..$#$faces+scalar @$face1];
+		#? old ? error push @$faces,[$#$faces..$#$faces+scalar @$face1];
+		# new one below...
+		push @$faces,[$#$points-$#$face1..$#$points];
+		
 		if ($name){
 			$scad->polyhedron($name,{points=>$points,faces=>$faces});
 			return $scad;
 		}
 		return {points=>$points,faces=>$faces}
 	}	
+
+
+=head3 C<spheroid>
+
+
+=cut	
 
 	method spheroid{# this generates a spheroid using a series of lofts between polygons
 	  my $name=shift;
@@ -101,6 +121,11 @@ class CAD::OpenSCAD::Loft{
 	   return {points=>$pts,faces=>$faces};
     }
 
+=head3 C<regularPolygon>
+
+
+=cut	
+
 	method regularPolygon{
 	  my $name=shift;
       my ($sides,$radius);
@@ -124,6 +149,11 @@ class CAD::OpenSCAD::Loft{
 	  return $pts;
 	}
 
+=head3 C<loftShell>
+
+
+=cut	
+
     method loftShell{
 		my ($face1,$face2,$index)=@_;
 		$index//=0;
@@ -146,21 +176,27 @@ class CAD::OpenSCAD::Loft{
 		push @$loftFaces,[$indices[@indices/2-1],$indices[0],$indices[@indices/2],$indices[-1]];
 		return $loftFaces;
    }
+
+=head3 C<profilePlane>
+maps a profile (a 2D shape) onto a x,y,or z plane,
+
+=cut	
    
    method profilePlane{
 	   my $profile=shift;
 	   my $plane=shift;
+	   my $disp=shift//0;
 	   for ($plane){
-		   ~/0|x/i && do{
-			   $profile=map{[0,$_[0],$_[1]]}@$profile;
+		   /0|x/i && do{
+			   $profile=[map{[$disp,$_->[0],$_->[1]]}@$profile];
 			   last;
 		   };
-		   ~/1|y/i && do{
-			   $profile=map{[$_[0],0,$_[1]]}@$profile;
+		   /1|y/i && do{
+			   $profile=[map{[$_->[0],$disp,$_->[1]]}@$profile];
 			   last;
 		   };
-		   ~/2|z/i && do{
-			   $profile=map{[$_[0],$_[1],0]}@$profile;
+		   /2|z/i && do{
+			   $profile=[map{[$_->[0],$_->[1],$disp]}@$profile];
 			   last;
 		   };
 		   die "Unrecognised plane"
@@ -169,6 +205,11 @@ class CAD::OpenSCAD::Loft{
 	   
    }
    
+=head3 C<conoid>
+
+
+=cut	
+    
    method conoid{
 	  my $name=shift;
       my ($apex,$sides,$radius);
@@ -195,11 +236,21 @@ class CAD::OpenSCAD::Loft{
 		return {points=>$pts,faces=>$faces}
    }
    
+=head3 C<reverseFaces>
+
+
+=cut	
+       
    method reverseFaces{
 	   my $faces=shift;
 	   return [map {[reverse @$_]}@$faces]
    }
    
+=head3 C<arc>
+
+
+=cut	
+       
    method arc{
 		my $name=shift;
 		my ($profile,$radius,$steps,$angle);
@@ -212,26 +263,41 @@ class CAD::OpenSCAD::Loft{
 			   map {$params->{$_}}(qw/profile radius steps angle/);
 		}
 		my $face1=[];
+		push @$face1,[$_->[0],$_->[1],0] foreach(@$profile);  # map profile in X and Y plane
 		my $faces=[[reverse(0..$#$face1)]];
-		push @$face1,[0,$_->[0],$_->[1]] foreach(@$profile);  # map profile in Y and Z plane
-		$face1=$Math->add($face1,[0,$radius,0]);              # shift profile $radius distance along X
+		$face1=$Math->add($face1,[$radius,0,0]);              # shift profile $radius distance along X
 		my $stepAngle=$Math->deg2rad($angle/$steps);
 		my $points=[@$face1];my $index=0;                     # first face   
 		for (0..$steps-1){
-			my $face2=$Math->rotz($face1,$stepAngle);  # rotate and shift to get next face
+			my $face2=$Math->roty($face1,-$stepAngle);  # rotate and shift to get next face
 			#$face2=$Math->add($face2,[$radius*sin($stepAngle),$radius*cos($stepAngle),0]);
 			push @$points,@$face2;                           # add to points list
-			push @$faces, @{$self->loftShell($face1,$face2,$index)};# the lofted faces added
+			push @$faces, @{$self->loftShell($face2,$face1,$index)};# the lofted faces added
 			$face1=[@$face2];                                # last face becomes first for the next loft;
 			$index+=scalar @$face1;
 		}
-		push @$faces,[$#$faces..$#$faces+scalar @$face1];
+		push @$faces,[$#$points-$#$face1..$#$points];
+		
 		if ($name){
 			$scad->polyhedron($name,{points=>$points,faces=>$faces});
 			return $scad;
 		}
 		return {points=>$points,faces=>$faces}
 	}	
-   
+	
+	
+	method cuboid{
+		my ($name,$face1,$face2)=@_;
+		return $self->loftSolid($name,$face1,$face2);
+	}
+  	
+	method globoid{
+		my ($name,$edge,$radius)=@_;
+		my $face1=$self->regularPolygon(undef,3);
+		my $face2=$self->regularPolygon(undef,4);
+		
+		
+		
+	} 
 
 }

@@ -9,7 +9,9 @@ our $VERSION='0.16';
 
 =head1 NAME
 
-CAD::OpenSCAD::Math - A module provide mathematic routines for CAD::OpenSCAD and others
+CAD::OpenSCAD::Math - A module to provide mathematic routines for
+CAD::OpenSCAD and others. In this module all angles are in radians
+but conversion modules are included.
 
 =cut
 
@@ -17,11 +19,14 @@ class CAD::OpenSCAD::Math{
 	field $pi  :reader;
 	field $e   :reader;
 	
+our $VERSION='0.16';
+	
 	BUILD{
 		$pi=4*atan2(1,1);
 		$e= exp(1);
 	}
-	method mirrorrotate{ # 2d rotate and mirror 
+	
+	method mirrorrotate{ # 2d rotate and mirror (made for GearMaker class)
 		my ($point,$angle)=@_;
 		return [$point->[0]*cos($angle)+$point->[1]*sin($angle),
 			   -$point->[1]*cos($angle)+$point->[0]*sin($angle)];
@@ -84,6 +89,16 @@ class CAD::OpenSCAD::Math{
 	}
 	
 	
+	#rotate about a given point; if center of rotation not given
+	#rotate about the mean of the points 
+	method rotAbout{
+		my ($point,$angle,$cor)=@_;
+		$cor//=$self->meanPoint($point);
+		$point=$self->substract($point,$cor);
+		$point=$self->rotate($point,$angle);
+		$point=$self->add($point,$cor);
+		return $point;
+	}
 				
 	method matrixTransform{
 		my ($point,$matrix)=@_;
@@ -107,7 +122,6 @@ class CAD::OpenSCAD::Math{
 		}
 	}
 	
-		
 	method add{ # add vectors
 		my ($point1,$point2)=@_;
 		if((scalar @$point1 == scalar @$point2) && (! ref $point1->[0])){
@@ -124,7 +138,32 @@ class CAD::OpenSCAD::Math{
 		else {die "Math->add failed"};
 	}
 		
+	method subtract{ # add vectors
+		my ($point1,$point2)=@_;
+		$point2=[map{-$_}@$point2];
+		return $self->add($point1,$point2);
+	}
 	
+	method multiply{ # multiply a vector or set of vectors by a scalar
+		my ($point1,$scalar)=@_;
+		if (ref $point1 eq "ARRAY"){
+		  if (!ref $point1->[0]){
+			return [map {$scalar*$point1->[$_]} (0..$#$point1)];
+		  }
+		  elsif(ref $point1->[0] eq "ARRAY"){
+			 my $tmp=[@$point1];
+			 foreach (0..$#$tmp){
+				 $tmp->[$_]=$self->multiply($tmp->[$_],$scalar);
+			 }
+			 return $tmp;
+		  }
+		  else{
+			  die "Math::multiply() failed";
+		  }
+		}
+		else {return $point1*$scalar};
+	}
+				
 	# measure angle between 2 points from origin
 	# if one point passed, angle from point to X-axis
 	method angle{
@@ -143,6 +182,17 @@ class CAD::OpenSCAD::Math{
 		return $rad*180/$pi;
 	}
 	
+	method acos{
+		my $number=shift;
+		die "Out of range in Math::acos(): $number;" if (($number <= -1)||($number >1));
+		return atan2(sqrt(1-$number*$number),1+$number)*2;
+	}
+	
+	method asin{
+		my $number=shift;
+		die "Out of range in Math::asin(): $number;" if (($number <= -1)||($number >1));
+		return atan2($number,1+sqrt(1-$number*$number))*2;
+	}	
 	# measure distance between 2 points
 	# if only one point passed, distance between point and origin
 	method distance{
@@ -155,7 +205,7 @@ class CAD::OpenSCAD::Math{
 	
 	method dot{ # dot product of two points
 		my ($p1,$p2)=@_;	
-		die "Points not same dimensions in Math->dot product\n" if @$p1 !=  @$p2 ;
+		die "Points not same dimensions in Math::dot() product\n" if @$p1 !=  @$p2 ;
 		my $sum=0;
 		for(0..$#$p1){$sum+=$p1->[$_]*$p2->[$_]};
 		return $sum;
@@ -164,9 +214,9 @@ class CAD::OpenSCAD::Math{
 	
 	method cross{# cross product of two 3d points
 		my ($p1,$p2)=@_;	
-		die "Point(s) not 3d in Math->cross product\n" if((@$p1 !=  @$p2) &&( @$p1 !=3));
+		die "Point(s) not 3d in Math::cross() product\n" if((@$p1 !=  @$p2) &&( @$p1 !=3));
 		return [$p1->[1]*$p2->[2]-$p1->[2]* $p2->[1],
-		        $p1->[2]*$p2->[2]-$p1->[2]* $p2->[0],
+		        $p1->[2]*$p2->[0]-$p1->[0]* $p2->[2],
 		        $p1->[0]*$p2->[1]-$p1->[1]* $p2->[0]]
 	}
 	
@@ -190,6 +240,7 @@ class CAD::OpenSCAD::Math{
 			return "{".join(",",map{$_."=>".$self->serialise($st->{$_})}keys %$st)."}"
 		}
 		else{
+			$st//="undefined";
 			return $st=~/^[\d+-\.]/?$st:"\"$st\"";
 		};
 	}
@@ -197,8 +248,8 @@ class CAD::OpenSCAD::Math{
 	method equal{  # test equality between 2 vectors
 		my ($p1,$p2)=@_;	
 		if (! ref $p1){
-			return $p1==$p2?1:0};
-		die "Points not same dimensions in Math->equal\n" if @$p1 !=  @$p2 ;
+			return (($p1==$p2)||($p1 eq $p2))?1:0};
+		die "Points not same dimensions in Math::equal()\n" if @$p1 !=  @$p2 ;
 		for(0..$#$p1){return 0 unless $self->equal($$p1[$_],$$p2[$_])};
 		return 1;
 	}
@@ -235,6 +286,21 @@ class CAD::OpenSCAD::Math{
 				return "VECTOR";
 			}
 		}
+	}
+	
+	method normal{
+		my ($ptArray)=@_;
+		die "Insufficient points in Math::normal()" unless @$ptArray>2;
+		my $normal=[0,0,0];	
+		for (2..$#$ptArray){
+			$normal=$self->add($normal,
+			              $self->cross(
+			                   $self->subtract($ptArray->[$_-1],$ptArray->[$_]),
+			                   $self->subtract($ptArray->[$_-2],$ptArray->[$_-1]))
+			                   );
+		}
+		return $self->unit($normal);
+		
 	}
 	
 }

@@ -1,7 +1,7 @@
 use strict; use warnings;
 use lib "../../../lib";
 
-use Object::Pad;
+use Feature::Compat::Class;
 use CAD::OpenSCAD::Math;
 
 =pod
@@ -18,6 +18,7 @@ our $Math=new CAD::OpenSCAD::Math;
 		
 class CAD::OpenSCAD::GearMaker{
 	field $scad :param;	
+	our $VERSION='0.16';
 	
 	method profile{
 		my %params=@_;
