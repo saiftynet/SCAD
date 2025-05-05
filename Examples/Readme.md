@@ -63,3 +63,14 @@ An extra module Loft.pm allows the creation of lofts betweeen two faces.  This c
 
 
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/helix.png?raw=true)
+
+
+### [ScadHead](https://github.com/saiftynet/SCAD/blob/main/Examples/ScadHead.pl) 
+
+This used a scadItem object, that keeps the parameters of a shape
+in a perl object rather than a string.  This means that the parameters
+can be changed, modifying the object in Perl before transformation in
+the build process into the appropriate script.
+
+
+![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/ScadHead.png?raw=true)
