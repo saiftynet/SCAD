@@ -1,3 +1,4 @@
+package CAD::OpenSCAD;  # for MetaCPAN
 use strict; use warnings;
 use lib "../";
 
@@ -6,7 +7,7 @@ use CAD::OpenSCAD::Math;
 
 our $Math=new CAD::OpenSCAD::Math;
 
-our $VERSION='0.16';
+our $VERSION='0.17';   
 
 =pod
 
@@ -27,8 +28,6 @@ CAD::OpenSCAD - A module to generate OpenSCAD files for 3D Object creation in Pe
 
 =head2 DESCRIPTION
 
-*** B<From Version 0.14 the API change to make class the same name as module file
-means that the className is now OpenSCAD (was SCAD before> ***
 CAD is not really something that has had significant recent Perl
 attention.  The OenSCAD framework allows the use of scripted generation
 and manipulation of 3D objects, and this module attempts to make this
@@ -104,8 +103,7 @@ class OpenSCAD{
    field $modules={};
    field $status :writer;
    field $extensions  ={};
-   
-   our $VERSION='0.16';
+
 
 =head4 set_fs set_fa set_tab set_vpt set_vpd set_vpf set_vp set_preview
 
@@ -116,7 +114,7 @@ outputs. e.g.
 
 =head3 3D Primitive Shapes
 
-=head4 cube
+=head4 C<cube>
 
 C<cube> creates a cube element e.g.
 
@@ -135,7 +133,7 @@ element is centered in the origin (a true value here centers the element)
       return $self;
    }
    
-=head4 cylinder
+=head4 C<cylinder>
 
 Creates a cylinder element e.g.
 
@@ -153,7 +151,7 @@ the element is centered on the origin (a true value here centers the element)
       return $self;
   }
 
-=head4 sphere
+=head4 C<sphere>
 
 Creates a sphere element e.g.
 
@@ -181,7 +179,7 @@ of defining radius of the sphere.
 
 =head3 Transformations
 
-=head4 translate
+=head4 C<translate>
 
 Moves an element by name a specified displacement in X,Y,Z directions
 e.g. 
@@ -200,7 +198,7 @@ The second parameter is an arrayref of three elements defining displacement.
 	  
   }
 
-=head4 rotate
+=head4 C<rotate>
 
 Rotates an element by name around X,Y,Z axes about the origin [0,0,0].e.g.
 
@@ -219,7 +217,7 @@ in degrees.
 	  
   }
   
-=head4 mirror
+=head4 C<mirror>
 
 Mirrors an element by name about a plane. That plane is defined by the normal to that vector, 
 and the plane goes through the origin.
@@ -239,7 +237,7 @@ is an arrayref containg the planes normal e.g.[1,0,0] implies a mirroring about 
 	  
   }
     
-=head4 resize
+=head4 C<resize>
 
 Resizes an element by name to specified dimensions in X,Y,Z directions.e.g.
 
@@ -257,7 +255,7 @@ scale factors.
 	  
   }
   
-=head4 scale
+=head4 C<scale>
 
 Scales an element by name by specified ratios in X,Y,Z directions.e.g.
 
@@ -274,7 +272,7 @@ The second parameter is an arrayref of three scale factors.
 	  
   } 
 
-=head4 multimatrix
+=head4 C<multimatrix>
 
 Multiplies the geometry of all child elements with the given
 L<affine|https://en.wikipedia.org/wiki/Transformation_matrix#Affine_transformations>
@@ -289,7 +287,7 @@ with the 4th row always forced to [0,0,0,1].
 	  
   } 
 
-=head4 skew
+=head4 C<skew>
 
 Uses MultiMatrix to transform a item by skewing in xy, yx, zy, yz, xz, zx  planes.
 this uses a matrix described in L<this gist|https://gist.github.com/boredzo/fde487c724a40a26fa9c>
@@ -318,7 +316,7 @@ this uses a matrix described in L<this gist|https://gist.github.com/boredzo/fde4
 
 
 
-=head4 offset
+=head4 C<offset>
 
 Offset generates a new 2d interior or exterior outline from an existing outline.
 There are two modes of operation: radial and delta.
@@ -331,7 +329,7 @@ There are two modes of operation: radial and delta.
 	  
   } 
 
-=head4 hull
+=head4 C<hull>
 
 Displays the convex hull of child nodes.
 
@@ -359,7 +357,7 @@ Displays the convex hull of child nodes.
 	  
   }   
 
-=head4 minkowski
+=head4 C<minkowski>
 
 =cut
   
@@ -373,7 +371,7 @@ Displays the convex hull of child nodes.
   
 =head3 Boolean Operations
 
-=head4  union
+=head4  C<union>
 
 Implicitly joins multiple elements into one element.e.g.C<< $scad->union("wheel",qw/wheel nut nut1 nut2 nut3/); >>
 the first item is the name of the new element created, the following elements are elements to be joined together.
@@ -390,7 +388,7 @@ If an element with the name of the first parameter does not exist, it is created
   }
 
 
-=head4 difference
+=head4 C<difference>
 
 Subtracts one or more elements from one element and creates a new element.
 e.g.
@@ -413,7 +411,7 @@ in "wheel" (first parameter).
       return $self;
   }  
   
-=head4 intersection
+=head4 C<intersection>
 
 Creates an element representing the overlapping parts of 2 or more elements
 .e.g.
@@ -435,7 +433,7 @@ elements which overlap neach other.
 
 =head3 2D Primitive Shapes
 
-=head4 circle
+=head4 C<circle>
 
 A 2D drawing primitive that creates a circle that may be extruded to create other 3D structures.
 e.g
@@ -449,7 +447,7 @@ e.g
       return $self;
   }
   
-=head4 square
+=head4 C<square>
 
 a 2D drawing primitive that creates a rectangle that may be extruded to create other 3D structures.
 e.g 
@@ -464,7 +462,7 @@ $scad->square("square",[10,10]);
       return $self;
   }
 
-=head4 polygon
+=head4 C<polygon>
 
 A 2D drawing primitive that creates a polygon that may be extruded to create other 3D structures .
 Example:- 
@@ -483,7 +481,7 @@ Example:-
       return $self;
   }
 
-=head4 text
+=head4 C<text>
 
 Allows 2D text shapes to be created, that may be extruded and manipulated like other items
 e.g. 
@@ -514,7 +512,7 @@ to just use defaults.
 
 =head3 Extrusion
 
-=head4 rotate_extrude
+=head4 C<rotate_extrude>
 
 A method to extrude a 2D shape while rotating invokes similar to liner_extrude
 
@@ -531,7 +529,7 @@ A method to extrude a 2D shape while rotating invokes similar to liner_extrude
       return $self;
   }  
 
-=head4 liner_extrude
+=head4 C<liner_extrude>
 
 A method to extrude a 2D shape see above for example
 =cut
@@ -543,7 +541,7 @@ A method to extrude a 2D shape see above for example
   }  
 
 
-=head4 color
+=head4 C<color>
 
 colors an item e.g. . 
 
@@ -567,7 +565,7 @@ colors an item e.g. .
 	  $scr=$tabs.(join "\n$tabs", (split "\n",$scr))."\n";
 	  return $scr;
   }
-=head4 clone
+=head4 C<clone>
 
 Creates copies of elements with same features. e.g.
 
@@ -619,7 +617,7 @@ This just copies the code for the element into new elements, for subsequent tran
     
 
     
-=head4 variable
+=head4 C<variable>
 
 Creates variables that SCAD can use for customising objects easily 
 (see polygon example above)
@@ -663,7 +661,7 @@ Creates variables that SCAD can use for customising objects easily
   
 =head3 Build and Save
   
-=head4 build
+=head4 C<build>
 
 Collects the elements specified (i.e. not all the elements, just the items required for the build)
 and all the variables to generate a scad file.  The scad file generated include all the variables defined,
@@ -700,7 +698,7 @@ the modules built and the libraries used
 	  }
 	  return $self;
   }
-=head4 save
+=head4 C<save>
 
 saves the .scad file, and also uses openscad to generate images or 3D objects
 from the script, or open it in openSCAD directly after building the shape;
@@ -797,8 +795,15 @@ manipulations.  It is inserted as C<< $scad->items->{"item_name"} >>, and
 during the  C<< $scad->build("item_name") >> the script is gnerated by 
 the C<script> method below.
 
-=cut
 
+=begin html
+
+<hr> <img src="https://github.com/saiftynet/dummyrepo/blob/main/SCAD/ScadHead.png?raw=true">
+
+=end html
+
+
+=cut
 
 
 class scadItem{
@@ -963,5 +968,6 @@ SAIFTYNET
 
 =head2 CONTRIBUTORS
 
-jmlynesjr
+L<jmlynesjr|https://github.com/jmlynesjr>
+
 =cut
