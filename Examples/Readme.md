@@ -74,3 +74,14 @@ the build process into the appropriate script.
 
 
 ![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/ScadHead.png?raw=true)
+
+
+### [Torus Knot](https://github.com/saiftynet/SCAD/blob/main/Examples/knots.pl) 
+
+This demonstrates loft along path (version 0.17)
+
+
+![image](https://github.com/saiftynet/dummyrepo/blob/main/SCAD/Torusknot.png?raw=true)
+
+
+
