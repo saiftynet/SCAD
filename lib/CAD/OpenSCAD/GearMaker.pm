@@ -1,7 +1,8 @@
+package CAD::OpenSCAD::GearMaker;  # for MetaCPAN
 use strict; use warnings;
 use lib "../../../lib";
 
-use Feature::Compat::Class;
+use Object::Pad;
 use CAD::OpenSCAD::Math;
 
 =pod
@@ -12,13 +13,12 @@ CAD::OpenSCAD::Gearmaker - A module to generate gears for CAD::OpenSCAD
 
 =cut
 
-our $VERSION='0.16';
+our $VERSION='0.17';
 	
 our $Math=new CAD::OpenSCAD::Math;
 		
 class CAD::OpenSCAD::GearMaker{
 	field $scad :param;	
-	our $VERSION='0.16';
 	
 	method profile{
 		my %params=@_;
@@ -48,7 +48,7 @@ class CAD::OpenSCAD::GearMaker{
 				push @$points, [$dx,$y];
 				unshift @$points, $Math->mirrorrotate([$dx,$y],($backlash/180+$pi)/$teeth);
 			}
-			last if $Math->distance([$x,$y]) > ($PCD/2+$Addendum);
+			last if $Math->magnitude([$x,$y]) > ($PCD/2+$Addendum);
 			push @$points,[$x,$y]; 
 			unshift @$points,$Math->mirrorrotate([$x,$y],($backlash/180+$pi)/$teeth);
 			#if the involute arcs are going to collide...remove point and leave 

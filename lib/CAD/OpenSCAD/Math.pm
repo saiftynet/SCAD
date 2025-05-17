@@ -1,26 +1,24 @@
+package CAD::OpenSCAD::Math;  # for MetaCPAN
+
 use strict; use warnings;
-use lib "../../lib";
 
 use Object::Pad;
 
-our $VERSION='0.16';
+our $VERSION="0.17";
 
 =pod
 
 =head1 NAME
 
-CAD::OpenSCAD::Math - A module to provide mathematic routines for
-CAD::OpenSCAD and others. In this module all angles are in radians
-but conversion modules are included.
+CAD::OpenSCAD::Math - A module to provide maths routines for
+CAD::OpenSCAD.
 
 =cut
 
 class CAD::OpenSCAD::Math{
 	field $pi  :reader;
 	field $e   :reader;
-	
-our $VERSION='0.16';
-	
+		
 	BUILD{
 		$pi=4*atan2(1,1);
 		$e= exp(1);
@@ -70,9 +68,9 @@ our $VERSION='0.16';
 	method roty{
 		my ($point,$angle)=@_;
 		my $matrix=[
-		             [cos($angle),0,sin($angle)],
-		             [0,1,0],
-		             [-sin($angle),0,cos($angle)],
+		             [ cos($angle),0,  sin($angle)],
+		             [     0,      1,       0     ],
+		             [-sin($angle),0,cos($angle)  ],
 		           ];
 		return $self->matrixTransform($point,$matrix);
 		
@@ -81,9 +79,9 @@ our $VERSION='0.16';
 	method rotz{
 		my ($point,$angle)=@_;
 		my $matrix=[
-		             [cos($angle),-sin($angle),0],
-		             [sin($angle),cos($angle),0],
-		             [0,0,1],
+		             [cos($angle),-sin($angle),    0],
+		             [sin($angle),cos($angle) ,    0],
+		             [      0    ,    0       ,    1],
 		           ];
 		return $self->matrixTransform($point,$matrix);
 	}
@@ -94,7 +92,7 @@ our $VERSION='0.16';
 	method rotAbout{
 		my ($point,$angle,$cor)=@_;
 		$cor//=$self->meanPoint($point);
-		$point=$self->substract($point,$cor);
+		$point=$self->subtract($point,$cor);
 		$point=$self->rotate($point,$angle);
 		$point=$self->add($point,$cor);
 		return $point;
@@ -103,6 +101,9 @@ our $VERSION='0.16';
 	method matrixTransform{
 		my ($point,$matrix)=@_;
 		if (ref $point->[0] ne "ARRAY"){
+			return unless defined $point->[0];
+			
+			
 			my $output=[];
 			foreach my $c (0..$#{$matrix->[0]}){
 				my $sum=0;
@@ -134,8 +135,11 @@ our $VERSION='0.16';
 			 }
 			 return $tmp;
 				
-		}
-		else {die "Math->add failed"};
+		}#
+		else {die "Math->add failed\n'\$point1' was ".
+			      $self->serialise($point1)."\n'\$point2' was ".
+			      $self->serialise($point2)."\n";
+			 };
 	}
 		
 	method subtract{ # add vectors
@@ -168,8 +172,23 @@ our $VERSION='0.16';
 	# if one point passed, angle from point to X-axis
 	method angle{
 		my ($p1,$p2)=@_;
-		$p2=[1,0] unless $p2;
-		return atan2($p1->[0],$p1->[1])-atan2($p2->[0],$p2->[1]);
+		$p2//=scalar (@$p1 ==2)?[1,0]:[1,0,0];
+		
+		die "Cannot measure Math::angle() ; mismatched vector dimensions \n" if (scalar @$p1 != scalar @$p2);
+		if (scalar @$p1 ==2){
+			return atan2($p1->[0],$p1->[1])-atan2($p2->[0],$p2->[1]);
+		}
+		else{
+			#die $self->serialise([$self->magnitude($p1)*$self->magnitude($p2)]);
+			my $div=$self->magnitude($p1)*$self->magnitude($p2);
+			return 0 unless $div; # if one of the vector is 0, 0 ISRETURNED;
+			die  " One of these vectors ".
+			      $self->serialise([$p1,$self->magnitude($p1),$p2,$self->magnitude($p2)]).
+			      " is zero length...cannot get angle" if $div==0;
+			my $cos=($p1->[0]*$p2->[0]+$p1->[1]*$p2->[1]+$p1->[2]*$p2->[2])/($self->magnitude($p1)*$self->magnitude($p2));
+			#die $cos;
+			return $self->acos($cos);
+		}
 	}
 	
 	method deg2rad{
@@ -184,7 +203,7 @@ our $VERSION='0.16';
 	
 	method acos{
 		my $number=shift;
-		die "Out of range in Math::acos(): $number;" if (($number <= -1)||($number >1));
+		die "Out of range in Math::acos(): $number;" if (($number < -1)||($number >1));
 		return atan2(sqrt(1-$number*$number),1+$number)*2;
 	}
 	
@@ -195,11 +214,12 @@ our $VERSION='0.16';
 	}	
 	# measure distance between 2 points
 	# if only one point passed, distance between point and origin
-	method distance{
-		my ($p1,$p2)=@_;	
-		$p2=[(0)x@$p1] unless $p2;	
+	# also Euclidian norm, or SRSS (square root of sum of squares)
+	method magnitude{
+		my ($v1,$v2)=@_;	
+		$v2=[(0)x@$v1] unless $v2;	
 		my $sum=0;
-		for(0..$#$p1){$sum+=($p1->[$_]-$p2->[$_])**2};
+		for(0..$#$v1){$sum+=($v1->[$_]-$v2->[$_])**2};
 		return sqrt($sum);
 	}
 	
@@ -222,7 +242,7 @@ our $VERSION='0.16';
 	
 	method unit{# unit vector
 		my ($p1)=@_;
-		my $mag=$self->distance($p1);
+		my $mag=$self->magnitude($p1);
 		return [map{$p1->[$_]/$mag} 0..$#$p1] ;
 	}
 		
@@ -258,8 +278,8 @@ our $VERSION='0.16';
 		my ($pt,$ptArray)=@_;	
 		my $closest={};my $index=0;
 		foreach my $tst (@$ptArray){
-			if (!$closest->{mag}||($self->distance($pt,$tst)<$closest->{mag})){
-				$closest={mag=>$self->distance($pt,$tst),index=>$index,point=>$tst}   
+			if (!$closest->{mag}||($self->magnitude($pt,$tst)<$closest->{mag})){
+				$closest={mag=>$self->magnitude($pt,$tst),index=>$index,point=>$tst}   
 			}
 		}
 		return $closest;
@@ -303,4 +323,23 @@ our $VERSION='0.16';
 		
 	}
 	
+	# doesnot work---to fix
+	method normTo{
+		my ($profile,$newNorm)=@_;
+		my $oldNorm=$self->normal($profile);
+		my $xr=$self->angle([0,$oldNorm->[1],$oldNorm->[2]],[0,$newNorm->[1],$newNorm->[2]]);
+		my $yr=$self->angle([$oldNorm->[0],0,$oldNorm->[2]],[$newNorm->[0],0,$newNorm->[2]]);
+		my $zr=$self->angle([$oldNorm->[0],$oldNorm->[1],0],[$newNorm->[0],$newNorm->[1],0]);
+		return $self->rotAbout($profile,[$xr,$yr,$zr]);
+		
+	}
+	
+	# points a profile/point Array with normal in z-direction (unit normal is [0,0,1]), into a new direction 
+	method pointTo{#credit Charthulius Wheezer
+		my ($pointArray, $direction)=@_;
+		$pointArray=$self->roty($pointArray,atan2($self->magnitude([$direction->[0],$direction->[1]]),$direction->[2] )+$self->pi()/2);
+		$pointArray=$self->rotz($pointArray,atan2($direction->[1],$direction->[0] ));
+		return $pointArray;
+		
+	}
 }
